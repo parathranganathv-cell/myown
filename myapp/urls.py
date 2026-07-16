@@ -1,16 +1,19 @@
+from django.contrib import admin
 from django.urls import path
-from . import views
+from myapp import views
+
 
 urlpatterns = [
-    path('i', views.Home, name='home'),
+    path('admin/', admin.site.urls),
 
-    path('e', views.Earning, name='earning'),
+    path('', views.Home, name="home"),
 
-    path('a', views.Amount, name='amount'),
+    path('e/', views.Earning, name="earning"),
 
-    path('n/', views.mynotes, name='note'),
+    path('a/', views.Amount, name="amount"),
 
-    path('c', views.Calender, name='calendar'),
+    path('n/', views.Note, name="note"),
 
+    path('c/', views.Calender, name="calendar"),
     path('download-pdf/', views.download_pdf, name='download_pdf'),
 ]

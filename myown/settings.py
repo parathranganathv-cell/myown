@@ -22,7 +22,7 @@ SECRET_KEY = os.environ.get(
 
 
 # Production mode
-DEBUG = False
+DEBUG = True
 
 
 ALLOWED_HOSTS = [
