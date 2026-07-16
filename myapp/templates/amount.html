@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {% load static %}
+
+    <link rel="stylesheet" href="{% static 'css/amount.css' %}">
+
+    <title>My Expense</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:Arial, Helvetica, sans-serif;
+        }
+
+        body{
+            background:#f5f5f5;
+            padding:30px;
+        }
+
+        .title{
+            text-align:center;
+            margin-bottom:30px;
+        }
+
+        .budget-container{
+            display:flex;
+            justify-content:center;
+            gap:30px;
+            flex-wrap:wrap;
+            margin-bottom:30px;
+        }
+
+        .budget-card{
+            width:330px;
+            background:white;
+            border-radius:15px;
+            padding:30px;
+            text-align:center;
+            box-shadow:0 0 15px rgba(0,0,0,.15);
+        }
+
+        .budget-card h2{
+            margin-bottom:20px;
+            font-size:22px;
+        }
+
+        .budget-card h1{
+            color:green;
+            font-size:45px;
+        }
+
+        .topf{
+            display:flex;
+            justify-content:center;
+            gap:15px;
+            flex-wrap:wrap;
+            margin-bottom:30px;
+        }
+
+        .topff{
+            text-decoration:none;
+            background:#0d6efd;
+            color:white;
+            padding:12px 18px;
+            border-radius:8px;
+        }
+
+        .topff:hover{
+            background:#084298;
+        }
+
+        form{
+            width:80%;
+            margin:20px auto;
+            background:white;
+            padding:25px;
+            border-radius:10px;
+            box-shadow:0 0 10px lightgray;
+        }
+
+        input{
+            width:240px;
+            padding:12px;
+            margin:10px;
+            font-size:16px;
+        }
+
+        button{
+            padding:12px 20px;
+            color:white;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+        }
+
+        .save{
+            background:green;
+        }
+
+        .clear{
+            background:red;
+        }
+
+        .filter{
+            background:#0d6efd;
+        }
+
+        .total{
+            text-align:center;
+            color:red;
+            font-size:30px;
+            margin:25px;
+        }
+
+        @media(max-width:768px){
+
+            form{
+                width:95%;
+            }
+
+            input{
+                width:100%;
+                margin:10px 0;
+            }
+
+            .budget-card{
+                width:95%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<h1 class="title">My Expense Tracker</h1>
+
+<div class="budget-container">
+
+    <div class="budget-card">
+
+        <h2>Fixed Amount</h2>
+
+        <h1>₹{{ fixed_amount }}</h1>
+
+    </div>
+
+    <div class="budget-card">
+
+        <h2>Remaining Amount</h2>
+
+        <h1>₹{{ remaining_amount }}</h1>
+
+    </div>
+
+</div>
+
+<div class="topf">
+
+    <a href="?filter=today" class="topff">Today</a>
+
+    <a href="?filter=yesterday" class="topff">Yesterday</a>
+
+    <a href="?filter=week" class="topff">Week</a>
+
+    <a href="?filter=month" class="topff">Month</a>
+
+    <a href="?filter=year" class="topff">Year</a>
+
+</div>
+
+<form method="GET">
+
+    <label>From</label>
+
+    <input
+        type="date"
+        name="from_date"
+        value="{{ from_date }}">
+
+    <label>To</label>
+
+    <input
+        type="date"
+        name="to_date"
+        value="{{ to_date }}">
+
+    <button class="filter" type="submit">
+        Filter
+    </button>
+
+</form>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="save_budget"
+        value="1">
+
+    <input
+        type="number"
+        step="0.01"
+        name="fixed_amount"
+        value="{{ fixed_amount }}"
+        placeholder="Enter Fixed Amount"
+        required>
+
+    <button class="save" type="submit">
+        Save Budget
+    </button>
+
+    <button
+        class="clear"
+        type="submit"
+        name="clear_budget"
+        value="1">
+
+        Clear Budget
+
+    </button>
+
+</form>
+
+<form method="POST">
+
+    {% csrf_token %}
+
+    <input
+        type="hidden"
+        name="save_expense"
+        value="1">
+
+    <input
+        type="number"
+        step="0.01"
+        name="amount"
+        placeholder="Enter Expense"
+        required>
+
+    <input
+        type="text"
+        name="reason"
+        placeholder="Reason"
+        required>
+
+    <button class="save" type="submit">
+        Add Expense
+    </button>
+
+</form>
+
+<h2 class="total">
+    Total Expense : ₹{{ total_amount }}
+</h2>
+{% for item in amounts %}
+
+<div class="record">
+
+    <h3>
+        ₹{{ item.amount }}
+    </h3>
+
+    <p>
+        <strong>Reason :</strong>
+        {{ item.reason }}
+    </p>
+
+    <p>
+        <strong>Date :</strong>
+        {{ item.created_at|date:"d-m-Y h:i A" }}
+    </p>
+
+</div>
+
+{% empty %}
+
+<h2 style="
+    text-align:center;
+    margin-top:30px;
+">
+    No Expense Found
+</h2>
+
+{% endfor %}
+
+
+<style>
+
+.record{
+
+    width:80%;
+    margin:20px auto;
+    background:white;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 0 10px lightgray;
+
+}
+
+
+.record h3{
+
+    color:red;
+    font-size:28px;
+    margin-bottom:10px;
+
+}
+
+
+.record p{
+
+    font-size:18px;
+    margin:8px 0;
+
+}
+
+
+@media(max-width:768px){
+
+    .record{
+
+        width:95%;
+
+    }
+
+}
+
+</style>
+
+
+</body>
+
+</html>

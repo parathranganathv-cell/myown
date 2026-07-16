@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Tracker</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+a{
+    text-decoration: none;
+    color: red;
+}
+a:hover{
+    color: black;
+}
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+body{
+    background:linear-gradient(135deg,#0f172a,#1e3a8a,#2563eb);
+    min-height:100vh;
+}
+
+/* Navigation */
+
+.navbar{
+    width:100%;
+    background:rgba(255,255,255,0.1);
+    backdrop-filter:blur(12px);
+    padding:18px 50px;
+    box-shadow:0 5px 20px rgba(0,0,0,.25);
+}
+
+.ibox{
+    display:flex;
+    justify-content:center;
+    gap:25px;
+}
+
+.lbox{
+    list-style:none;
+}
+
+.lbox a{
+    text-decoration:none;
+    color:white;
+    font-size:17px;
+    font-weight:500;
+    padding:14px 28px;
+    display:block;
+    border-radius:15px;
+    transition:.35s;
+    background:rgba(255,255,255,.15);
+}
+
+.lbox a:hover{
+    background:white;
+    color:#2563eb;
+    transform:translateY(-5px);
+    box-shadow:0 10px 20px rgba(0,0,0,.25);
+}
+
+/* Hero Section */
+
+.container{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    height:80vh;
+    color:white;
+    text-align:center;
+}
+
+.container h1{
+    font-size:60px;
+    margin-bottom:15px;
+}
+
+.container p{
+    font-size:20px;
+    width:70%;
+    opacity:.9;
+}
+
+.card{
+    margin-top:50px;
+    display:flex;
+    gap:25px;
+    flex-wrap:wrap;
+    justify-content:center;
+}
+
+.box{
+    width:220px;
+    height:140px;
+    background:rgba(255,255,255,.15);
+    backdrop-filter:blur(15px);
+    border-radius:20px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    color:white;
+    font-size:22px;
+    font-weight:600;
+    transition:.3s;
+    cursor:pointer;
+}
+
+.box:hover{
+    transform:scale(1.08);
+    background:white;
+    color:#2563eb;
+}
+
+@media(max-width:900px){
+
+.ibox{
+    flex-direction:column;
+    align-items:center;
+}
+
+.container h1{
+    font-size:40px;
+}
+
+.container p{
+    width:90%;
+}
+
+}
+
+</style>
+
+</head>
+<body>
+
+<nav class="navbar">
+
+<ul class="ibox">
+
+<li class="lbox"><a href="/i">🏠 Home</a></li>
+
+<li class="lbox"><a href="/e">💰 My Earnings</a></li>
+
+<li class="lbox"><a href="/a">💳 Amount Spend</a></li>
+
+<li class="lbox"><a href="/c">📅 Calendar</a></li>
+
+<li class="lbox"><a href="/n">📝 My Notes</a></li>
+
+</ul>
+
+</nav>
+
+<div class="container">
+
+<h1>Expense Tracker</h1>
+
+<div class="card">
+
+<div class="box"><a href="/e">💰 My Earnings</a></div>
+
+<div class="box"><a href="/a">💳 Expense</a></div>
+
+<div class="box"><a href="/c">📅 Calendar</a></div>
+
+<div class="box"><a href="/n">📝 My Notes</a></div>
+
+</div>
+
+</div>
+
+</body>
+</html>

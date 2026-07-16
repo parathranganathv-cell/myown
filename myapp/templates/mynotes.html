@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>My Notes</title>
+
+<style>
+
+body{
+    font-family: Arial;
+    background:#f5f5f5;
+    padding:30px;
+}
+
+input{
+    width:300px;
+    padding:10px;
+}
+
+button{
+    padding:10px 20px;
+    cursor:pointer;
+}
+
+.note{
+    width:350px;
+    background:white;
+    padding:15px;
+    margin-top:15px;
+    border-radius:8px;
+    box-shadow:0px 0px 5px gray;
+}
+
+</style>
+
+</head>
+<body>
+
+<h1>My Notes</h1>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <input
+    type="text"
+    name="content"
+    placeholder="Write your note..."
+    required>
+
+    <button type="submit">
+        Add Note
+    </button>
+
+</form>
+
+<hr>
+
+{% for note in notes %}
+
+<div class="note">
+
+    <p>{{ note.content }}</p>
+
+    <small>{{ note.created_at }}</small>
+
+</div>
+
+{% empty %}
+
+<p>No Notes Available.</p>
+
+{% endfor %}
+
+</body>
+</html>
