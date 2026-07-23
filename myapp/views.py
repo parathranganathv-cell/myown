@@ -3,6 +3,7 @@ from django.db.models import Sum
 from django.http import HttpResponse
 from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
 from reportlab.lib import colors
+from django.views.decorators.http import require_POST
 
 from .models import Budget, Expense, Earnings, Note
 
@@ -42,7 +43,6 @@ def Amount(request):
 
         return redirect("amount")
 
-
     # -------------------------
     # Save Budget
     # -------------------------
@@ -56,12 +56,11 @@ def Amount(request):
             budget.fixed_amount = fixed_amount
             budget.save()
         else:
-            Budget.objects.create(
+            budget = Budget.objects.create(
                 fixed_amount=fixed_amount
             )
 
         return redirect("amount")
-
 
     # -------------------------
     # Save Expense
@@ -73,20 +72,17 @@ def Amount(request):
 
         budget = Budget.objects.first()
 
-        if budget:
+        # Automatically create a budget if none exists
+        if budget is None:
+            budget = Budget.objects.create(fixed_amount=0)
 
-            Expense.objects.create(
-
-                budget=budget,
-
-                amount=amount,
-
-                reason=reason
-
-            )
+        Expense.objects.create(
+            budget=budget,
+            amount=amount,
+            reason=reason
+        )
 
         return redirect("amount")
-
 
     # -------------------------
     # Display Data
@@ -106,11 +102,7 @@ def Amount(request):
 
         fixed_amount = budget.fixed_amount
 
-        # If budget is cleared, show remaining amount as 0
-        if fixed_amount == 0:
-            remaining_amount = 0
-        else:
-            remaining_amount = fixed_amount - total_amount
+        remaining_amount = fixed_amount - total_amount
 
     else:
 
@@ -121,7 +113,6 @@ def Amount(request):
         total_amount = 0
 
         remaining_amount = 0
-
 
     context = {
 
@@ -136,14 +127,6 @@ def Amount(request):
     }
 
     return render(request, "amount.html", context)
-
-# ======================
-# Earnings Page
-# ======================
-
-# ======================
-# Earnings Page
-# ======================
 
 def Earning(request):
 
@@ -264,3 +247,25 @@ def download_pdf(request):
     doc.build([table])
 
     return response
+
+
+
+from django.views.decorators.http import require_POST
+
+@require_POST
+def clear_all_data(request):
+
+    Expense.objects.all().delete()
+    Earnings.objects.all().delete()
+    Note.objects.all().delete()
+
+    # Don't delete the Budget row.
+    budget = Budget.objects.first()
+
+    if budget:
+        budget.fixed_amount = 0
+        budget.save()
+    else:
+        Budget.objects.create(fixed_amount=0)
+
+    return redirect("home")

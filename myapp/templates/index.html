@@ -8,13 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <style>
-a{
-    text-decoration: none;
-    color: red;
-}
-a:hover{
-    color: black;
-}
+
 *{
     margin:0;
     padding:0;
@@ -27,11 +21,17 @@ body{
     min-height:100vh;
 }
 
-/* Navigation */
+a{
+    text-decoration:none;
+}
+
+/* =======================
+   Navigation
+======================= */
 
 .navbar{
     width:100%;
-    background:rgba(255,255,255,0.1);
+    background:rgba(255,255,255,.1);
     backdrop-filter:blur(12px);
     padding:18px 50px;
     box-shadow:0 5px 20px rgba(0,0,0,.25);
@@ -41,6 +41,7 @@ body{
     display:flex;
     justify-content:center;
     gap:25px;
+    flex-wrap:wrap;
 }
 
 .lbox{
@@ -48,7 +49,6 @@ body{
 }
 
 .lbox a{
-    text-decoration:none;
     color:white;
     font-size:17px;
     font-weight:500;
@@ -66,21 +66,23 @@ body{
     box-shadow:0 10px 20px rgba(0,0,0,.25);
 }
 
-/* Hero Section */
+/* =======================
+   Hero
+======================= */
 
 .container{
     display:flex;
     justify-content:center;
     align-items:center;
     flex-direction:column;
-    height:80vh;
+    height:75vh;
     color:white;
     text-align:center;
 }
 
 .container h1{
     font-size:60px;
-    margin-bottom:15px;
+    margin-bottom:20px;
 }
 
 .container p{
@@ -88,6 +90,10 @@ body{
     width:70%;
     opacity:.9;
 }
+
+/* =======================
+   Cards
+======================= */
 
 .card{
     margin-top:50px;
@@ -106,9 +112,6 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    color:white;
-    font-size:22px;
-    font-weight:600;
     transition:.3s;
     cursor:pointer;
 }
@@ -116,15 +119,57 @@ body{
 .box:hover{
     transform:scale(1.08);
     background:white;
+}
+
+.box a{
+    color:white;
+    font-size:22px;
+    font-weight:600;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+
+.box:hover a{
     color:#2563eb;
 }
 
-@media(max-width:900px){
+/* =======================
+   Clear Button
+======================= */
 
-.ibox{
-    flex-direction:column;
-    align-items:center;
+.clear-box{
+    text-align:center;
+    margin-bottom:40px;
 }
+
+.clear-btn{
+
+    background:#dc3545;
+    color:white;
+    border:none;
+    padding:15px 35px;
+    border-radius:10px;
+    font-size:18px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.3s;
+}
+
+.clear-btn:hover{
+
+    background:#b30000;
+    transform:scale(1.05);
+
+}
+
+/* =======================
+   Mobile
+======================= */
+
+@media(max-width:900px){
 
 .container h1{
     font-size:40px;
@@ -134,46 +179,95 @@ body{
     width:90%;
 }
 
+.ibox{
+    flex-direction:column;
+    align-items:center;
+}
+
 }
 
 </style>
 
 </head>
+
 <body>
+
+<!-- Navigation -->
 
 <nav class="navbar">
 
 <ul class="ibox">
 
-<li class="lbox"><a href="/i">🏠 Home</a></li>
+<li class="lbox">
+<a href="/i/">🏠 Home</a>
+</li>
 
-<li class="lbox"><a href="/e">💰 My Earnings</a></li>
+<li class="lbox">
+<a href="/e/">💰 My Earnings</a>
+</li>
 
-<li class="lbox"><a href="/a">💳 Amount Spend</a></li>
+<li class="lbox">
+<a href="/a/">💳 Amount Spend</a>
+</li>
 
-<li class="lbox"><a href="/c">📅 Calendar</a></li>
+<li class="lbox">
+<a href="/c/">📅 Calendar</a>
+</li>
 
-<li class="lbox"><a href="/n">📝 My Notes</a></li>
+<li class="lbox">
+<a href="/n/">📝 My Notes</a>
+</li>
 
 </ul>
 
 </nav>
 
+<!-- Hero -->
+
 <div class="container">
 
 <h1>Expense Tracker</h1>
 
+
 <div class="card">
 
-<div class="box"><a href="/e">💰 My Earnings</a></div>
+<div class="box">
+<a href="/e/">💰 My Earnings</a>
+</div>
 
-<div class="box"><a href="/a">💳 Expense</a></div>
+<div class="box">
+<a href="/a/">💳 Expense</a>
+</div>
 
-<div class="box"><a href="/c">📅 Calendar</a></div>
+<div class="box">
+<a href="/c/">📅 Calendar</a>
+</div>
 
-<div class="box"><a href="/n">📝 My Notes</a></div>
+<div class="box">
+<a href="/n/">📝 My Notes</a>
+</div>
 
 </div>
+
+</div>
+
+<!-- Clear All Data -->
+
+<div class="clear-box">
+
+<form method="POST"
+      action="{% url 'clear_all_data' %}"
+      onsubmit="return confirm('⚠️ This will permanently delete ALL Budgets, Expenses, Earnings and Notes. Are you sure?');">
+
+{% csrf_token %}
+
+<button class="clear-btn" type="submit">
+
+🗑 Clear All Data
+
+</button>
+
+</form>
 
 </div>
 
