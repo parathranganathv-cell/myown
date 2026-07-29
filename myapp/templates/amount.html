@@ -26,7 +26,26 @@
 
         .title{
             text-align:center;
-            margin-bottom:30px;
+            margin-bottom:20px;
+        }
+
+        .download{
+            text-align:center;
+            margin-bottom:20px;
+        }
+
+        .download button{
+            background:#0d6efd;
+            color:white;
+            padding:12px 20px;
+            border:none;
+            border-radius:6px;
+            cursor:pointer;
+            font-size:16px;
+        }
+
+        .download button:hover{
+            background:#084298;
         }
 
         .budget-container{
@@ -135,6 +154,23 @@
             }
 
         }
+        .download a{
+    display:inline-block;
+    background:#198754;
+    color:white;
+    padding:14px 25px;
+    text-decoration:none;
+    border-radius:8px;
+    font-size:17px;
+    font-weight:bold;
+    box-shadow:0 4px 10px rgba(0,0,0,0.2);
+    transition:0.3s;
+}
+
+.download a:hover{
+    background:#146c43;
+    transform:translateY(-2px);
+}
 
     </style>
 
@@ -143,6 +179,12 @@
 <body>
 
 <h1 class="title">My Expense Tracker</h1>
+
+<div class="download">
+   <a href="{% url 'download_pdf' %}">
+    Download Expense PDF
+</a>
+</div>
 
 <div class="budget-container">
 
@@ -199,7 +241,6 @@
     </button>
 
 </form>
-
 <form method="POST">
 
     {% csrf_token %}
@@ -264,6 +305,7 @@
 <h2 class="total">
     Total Expense : ₹{{ total_amount }}
 </h2>
+
 {% for item in amounts %}
 
 <div class="record">
@@ -279,67 +321,54 @@
 
     <p>
         <strong>Date :</strong>
-        {{ item.created_at|date:"d-m-Y h:i A" }}
+        {{ item.created_at|date:"d-m-Y" }}
+    </p>
+
+    <p>
+        <strong>Time :</strong>
+        {{ item.created_at|date:"h:i A" }}
     </p>
 
 </div>
 
 {% empty %}
 
-<h2 style="
-    text-align:center;
-    margin-top:30px;
-">
+<h2 style="text-align:center;margin-top:30px;">
     No Expense Found
 </h2>
 
 {% endfor %}
-
-
 <style>
 
 .record{
-
     width:80%;
     margin:20px auto;
     background:white;
     padding:20px;
     border-radius:12px;
     box-shadow:0 0 10px lightgray;
-
 }
 
-
 .record h3{
-
     color:red;
     font-size:28px;
     margin-bottom:10px;
-
 }
-
 
 .record p{
-
     font-size:18px;
     margin:8px 0;
-
 }
-
 
 @media(max-width:768px){
 
     .record{
-
         width:95%;
-
     }
 
 }
 
 </style>
 
-
 </body>
-
 </html>

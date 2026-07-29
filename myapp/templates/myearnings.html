@@ -114,6 +114,29 @@
             color:red;
             width:100%;
         }
+        /* Download PDF Button */
+
+.download-btn{
+    display:block;
+    width:220px;
+    margin:20px auto;
+    text-align:center;
+    background:#09db44;
+    color:white;
+    padding:12px 20px;
+    border-radius:8px;
+    text-decoration:none;
+    font-size:18px;
+    font-weight:bold;
+    box-shadow:0 4px 8px rgba(0,0,0,0.2);
+    transition:0.3s;
+}
+
+.download-btn:hover{
+    background:#0625c2;
+    transform:scale(1.05);
+}
+        
 
     </style>
 
@@ -123,8 +146,8 @@
 <h1>💰 My Earnings</h1>
 
 <!-- Filter Form -->
-<a href="{% url 'download_pdf' %}">
-    <button>Download PDF</button>
+<a class="download-btn" href="{% url 'download_earning_pdf' %}">
+    📄 Download PDF
 </a>
 <div class="filter-box">
 

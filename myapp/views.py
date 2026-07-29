@@ -1,38 +1,40 @@
 from django.shortcuts import render, redirect
-from django.db.models import Sum
 from django.http import HttpResponse
-from reportlab.platypus import SimpleDocTemplate, Table, TableStyle
-from reportlab.lib import colors
+from django.db.models import Sum
 from django.views.decorators.http import require_POST
+from django.utils import timezone
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Table,
+    TableStyle,
+    Paragraph,
+    Spacer,
+)
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
 
 from .models import Budget, Expense, Earnings, Note
 
 
-# ======================
+# ==========================
 # Home
-# ======================
+# ==========================
 
 def Home(request):
     return render(request, "index.html")
 
 
-# ======================
+# ==========================
 # Expense Page
-# ======================
-
-# ======================
-# Expense Page
-# ======================
-
-# ======================
-# Expense Page
-# ======================
+# ==========================
 
 def Amount(request):
 
-    # -------------------------
+    # --------------------
     # Clear Budget
-    # -------------------------
+    # --------------------
+
     if request.method == "POST" and "clear_budget" in request.POST:
 
         budget = Budget.objects.first()
@@ -43,9 +45,10 @@ def Amount(request):
 
         return redirect("amount")
 
-    # -------------------------
+    # --------------------
     # Save Budget
-    # -------------------------
+    # --------------------
+
     if request.method == "POST" and "save_budget" in request.POST:
 
         fixed_amount = request.POST.get("fixed_amount")
@@ -53,18 +56,22 @@ def Amount(request):
         budget = Budget.objects.first()
 
         if budget:
+
             budget.fixed_amount = fixed_amount
             budget.save()
+
         else:
-            budget = Budget.objects.create(
+
+            Budget.objects.create(
                 fixed_amount=fixed_amount
             )
 
         return redirect("amount")
 
-    # -------------------------
+    # --------------------
     # Save Expense
-    # -------------------------
+    # --------------------
+
     if request.method == "POST" and "save_expense" in request.POST:
 
         amount = request.POST.get("amount")
@@ -72,9 +79,11 @@ def Amount(request):
 
         budget = Budget.objects.first()
 
-        # Automatically create a budget if none exists
         if budget is None:
-            budget = Budget.objects.create(fixed_amount=0)
+
+            budget = Budget.objects.create(
+                fixed_amount=0
+            )
 
         Expense.objects.create(
             budget=budget,
@@ -84,9 +93,12 @@ def Amount(request):
 
         return redirect("amount")
 
-    # -------------------------
-    # Display Data
-    # -------------------------
+    # --------------------
+    # Filter
+    # --------------------
+
+    from_date = request.GET.get("from_date")
+    to_date = request.GET.get("to_date")
 
     budget = Budget.objects.first()
 
@@ -95,6 +107,16 @@ def Amount(request):
         amounts = Expense.objects.filter(
             budget=budget
         ).order_by("-created_at")
+
+        if from_date:
+            amounts = amounts.filter(
+                created_at__date__gte=from_date
+            )
+
+        if to_date:
+            amounts = amounts.filter(
+                created_at__date__lte=to_date
+            )
 
         total_amount = amounts.aggregate(
             Sum("amount")
@@ -124,11 +146,26 @@ def Amount(request):
 
         "total_amount": total_amount,
 
+        "from_date": from_date,
+
+        "to_date": to_date,
+
     }
 
-    return render(request, "amount.html", context)
+    return render(
+        request,
+        "amount.html",
+        context
+    )
+# ==========================
+# Earnings Page
+# ==========================
 
 def Earning(request):
+
+    # --------------------
+    # Save Earnings
+    # --------------------
 
     if request.method == "POST":
 
@@ -142,10 +179,9 @@ def Earning(request):
 
         return redirect("earning")
 
-
-    # -------------------------
+    # --------------------
     # Filter
-    # -------------------------
+    # --------------------
 
     from_date = request.GET.get("from_date")
     to_date = request.GET.get("to_date")
@@ -153,16 +189,18 @@ def Earning(request):
     amounts = Earnings.objects.all().order_by("-created_at")
 
     if from_date:
-        amounts = amounts.filter(created_at__date__gte=from_date)
+        amounts = amounts.filter(
+            created_at__date__gte=from_date
+        )
 
     if to_date:
-        amounts = amounts.filter(created_at__date__lte=to_date)
-
+        amounts = amounts.filter(
+            created_at__date__lte=to_date
+        )
 
     total_amount = amounts.aggregate(
         Sum("amount")
     )["amount__sum"] or 0
-
 
     context = {
 
@@ -176,10 +214,16 @@ def Earning(request):
 
     }
 
-    return render(request, "myearnings.html", context)
-# ======================
+    return render(
+        request,
+        "myearnings.html",
+        context
+    )
+
+
+# ==========================
 # Notes
-# ======================
+# ==========================
 
 def mynotes(request):
 
@@ -188,59 +232,260 @@ def mynotes(request):
         content = request.POST.get("content")
 
         if content:
-
-            Note.objects.create(content=content)
+            Note.objects.create(
+                content=content
+            )
 
         return redirect("note")
 
     notes = Note.objects.all().order_by("-created_at")
 
-    return render(request, "mynotes.html", {"notes": notes})
+    return render(
+        request,
+        "mynotes.html",
+        {
+            "notes": notes
+        }
+    )
 
-
-# ======================
+# ==========================
 # Calendar
-# ======================
+# ==========================
 
 def Calender(request):
-    return render(request, "calender.html")
+
+    return render(
+        request,
+        "calender.html"
+    )
+# ==========================
+# Download Expense PDF
+# ==========================
+
+def download_expense_pdf(request):
+
+    from_date = request.GET.get("from_date")
+    to_date = request.GET.get("to_date")
+
+    # Remove invalid None values from URL
+    if from_date in ["", "None", None]:
+        from_date = None
+
+    if to_date in ["", "None", None]:
+        to_date = None
 
 
-# ======================
-# PDF
-# ======================
+    # Get all expenses
+    expenses = Expense.objects.all().order_by("-created_at")
 
-def download_pdf(request):
 
-    response = HttpResponse(content_type="application/pdf")
+    # Filter by date
+    if from_date:
+        expenses = expenses.filter(
+            created_at__date__gte=from_date
+        )
 
-    response["Content-Disposition"] = 'attachment; filename="Earnings.pdf"'
+
+    if to_date:
+        expenses = expenses.filter(
+            created_at__date__lte=to_date
+        )
+
+
+    # Calculate total expense
+    total = expenses.aggregate(
+        Sum("amount")
+    )["amount__sum"] or 0
+
+
+
+    # Create PDF response
+    response = HttpResponse(
+        content_type="application/pdf"
+    )
+
+    response["Content-Disposition"] = (
+        'attachment; filename="Expense_Report.pdf"'
+    )
+
 
     doc = SimpleDocTemplate(response)
 
-    data = [["Amount", "Reason", "Date"]]
 
-    for item in Earnings.objects.all():
+
+    # PDF table heading
+    data = [
+        [
+            "Amount",
+            "Reason",
+            "Date & Time"
+        ]
+    ]
+
+
+
+    # Add expense data
+    for item in expenses:
+
+        # Convert UTC time to Indian Standard Time
+        indian_time = timezone.localtime(
+            item.created_at
+        )
+
+        data.append(
+            [
+                f"₹{item.amount}",
+                item.reason,
+                indian_time.strftime(
+                    "%d-%m-%Y %I:%M %p"
+                )
+            ]
+        )
+
+
+
+    # Add total row
+    data.append(
+        [
+            "",
+            "Total Expense",
+            f"₹{total}"
+        ]
+    )
+
+
+
+    # Create table
+    table = Table(data)
+
+
+
+    # Table styling
+    table.setStyle(
+        TableStyle([
+
+            # Header
+            (
+                "BACKGROUND",
+                (0,0),
+                (-1,0),
+                colors.darkblue
+            ),
+
+            (
+                "TEXTCOLOR",
+                (0,0),
+                (-1,0),
+                colors.white
+            ),
+
+
+            # Border
+            (
+                "GRID",
+                (0,0),
+                (-1,-1),
+                1,
+                colors.black
+            ),
+
+
+            # Expense rows
+            (
+                "BACKGROUND",
+                (0,1),
+                (-1,-2),
+                colors.beige
+            ),
+
+
+            # Total row
+            (
+                "BACKGROUND",
+                (0,-1),
+                (-1,-1),
+                colors.lightgrey
+            ),
+
+
+            (
+                "FONTNAME",
+                (0,-1),
+                (-1,-1),
+                "Helvetica-Bold"
+            ),
+
+
+            (
+                "ALIGN",
+                (0,0),
+                (-1,-1),
+                "CENTER"
+            ),
+
+        ])
+    )
+
+
+
+    # Build PDF
+    doc.build(
+        [table]
+    )
+
+
+    return response
+def download_earnings_pdf(request):
+
+    from_date = request.GET.get("from_date")
+    to_date = request.GET.get("to_date")
+
+    earnings = Earnings.objects.all().order_by("-created_at")
+
+    if from_date:
+        earnings = earnings.filter(created_at__date__gte=from_date)
+
+    if to_date:
+        earnings = earnings.filter(created_at__date__lte=to_date)
+
+    total = earnings.aggregate(
+        Sum("amount")
+    )["amount__sum"] or 0
+
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="Earnings_Report.pdf"'
+
+    doc = SimpleDocTemplate(response)
+
+    data = [["Amount", "Reason", "Date & Time"]]
+
+    for item in earnings:
 
         data.append([
-            str(item.amount),
+            f"₹{item.amount}",
             item.reason,
             item.created_at.strftime("%d-%m-%Y %I:%M %p")
         ])
+
+    data.append(["", "", ""])
+    data.append(["", "Total Earnings", f"₹{total}"])
 
     table = Table(data)
 
     table.setStyle(TableStyle([
 
-        ("BACKGROUND", (0, 0), (-1, 0), colors.darkblue),
+        ("BACKGROUND", (0,0), (-1,0), colors.green),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
 
-        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("GRID", (0,0), (-1,-1), 1, colors.black),
 
-        ("GRID", (0, 0), (-1, -1), 1, colors.black),
+        ("BACKGROUND", (0,1), (-1,-2), colors.beige),
 
-        ("BACKGROUND", (0, 1), (-1, -1), colors.beige),
+        ("BACKGROUND", (0,-1), (-1,-1), colors.lightgreen),
 
-        ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+        ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
+
+        ("ALIGN", (0,0), (-1,-1), "CENTER"),
 
     ]))
 
@@ -249,8 +494,9 @@ def download_pdf(request):
     return response
 
 
-
-from django.views.decorators.http import require_POST
+# ==========================
+# Clear All Data
+# ==========================
 
 @require_POST
 def clear_all_data(request):
@@ -259,13 +505,17 @@ def clear_all_data(request):
     Earnings.objects.all().delete()
     Note.objects.all().delete()
 
-    # Don't delete the Budget row.
     budget = Budget.objects.first()
 
     if budget:
+
         budget.fixed_amount = 0
         budget.save()
+
     else:
-        Budget.objects.create(fixed_amount=0)
+
+        Budget.objects.create(
+            fixed_amount=0
+        )
 
     return redirect("home")
