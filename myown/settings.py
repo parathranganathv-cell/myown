@@ -7,11 +7,16 @@ import os
 import dj_database_url
 
 
+# ======================================================
 # Build paths
+# ======================================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+# ======================================================
 # Security
+# ======================================================
 
 SECRET_KEY = os.environ.get(
     "SECRET_KEY",
@@ -19,161 +24,253 @@ SECRET_KEY = os.environ.get(
 )
 
 
-DEBUG = True
+DEBUG = os.environ.get(
+    "DEBUG",
+    "True"
+) == "True"
 
 
 ALLOWED_HOSTS = [
+
     "localhost",
+
     "127.0.0.1",
+
     "myown-njc8.onrender.com",
+
 ]
 
 
 CSRF_TRUSTED_ORIGINS = [
+
+    "http://localhost:8000",
+
+    "http://127.0.0.1:8000",
+
     "https://myown-njc8.onrender.com",
+
 ]
 
 
+# ======================================================
 # Applications
+# ======================================================
 
 INSTALLED_APPS = [
 
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
+    "django.contrib.admin",
 
-    'myapp',
+    "django.contrib.auth",
+
+    "django.contrib.contenttypes",
+
+    "django.contrib.sessions",
+
+    "django.contrib.messages",
+
+    "django.contrib.staticfiles",
+
+
+    "myapp",
+
 ]
 
 
+# ======================================================
 # Middleware
+# ======================================================
 
 MIDDLEWARE = [
 
-    'django.middleware.security.SecurityMiddleware',
+    "django.middleware.security.SecurityMiddleware",
 
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    "django.contrib.sessions.middleware.SessionMiddleware",
 
-    'django.middleware.common.CommonMiddleware',
+    "django.middleware.common.CommonMiddleware",
 
-    'django.middleware.csrf.CsrfViewMiddleware',
+    "django.middleware.csrf.CsrfViewMiddleware",
 
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
 
-    'django.contrib.messages.middleware.MessageMiddleware',
+    "django.contrib.messages.middleware.MessageMiddleware",
 
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
+
 ]
 
 
-ROOT_URLCONF = 'myown.urls'
+# ======================================================
+# URL / WSGI
+# ======================================================
+
+ROOT_URLCONF = "myown.urls"
 
 
+WSGI_APPLICATION = "myown.wsgi.application"
+
+
+
+# ======================================================
 # Templates
+# ======================================================
 
 TEMPLATES = [
 
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
 
-        # Added templates folder support
-        'DIRS': [
-            BASE_DIR / 'templates'
+        "BACKEND":
+        "django.template.backends.django.DjangoTemplates",
+
+
+        # For project-level templates
+        "DIRS": [
+            BASE_DIR / "templates"
         ],
 
-        'APP_DIRS': True,
 
-        'OPTIONS': {
+        # For myapp/templates/
+        "APP_DIRS": True,
 
-            'context_processors': [
 
-                'django.template.context_processors.request',
+        "OPTIONS": {
 
-                'django.contrib.auth.context_processors.auth',
+            "context_processors": [
 
-                'django.contrib.messages.context_processors.messages',
+                "django.template.context_processors.request",
+
+                "django.contrib.auth.context_processors.auth",
+
+                "django.contrib.messages.context_processors.messages",
 
             ],
+
         },
+
     },
+
 ]
 
 
-WSGI_APPLICATION = 'myown.wsgi.application'
 
-
+# ======================================================
 # Database
+# ======================================================
 
-DATABASES = {
-
-    "default": dj_database_url.config(
-
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-
-        conn_max_age=600,
-
-        ssl_require=True
-
-    )
-}
+DATABASE_URL = os.environ.get("DATABASE_URL")
 
 
+if DATABASE_URL:
 
-# Password validation
+    # Render PostgreSQL
+
+    DATABASES = {
+
+        "default": dj_database_url.parse(
+
+            DATABASE_URL,
+
+            conn_max_age=600,
+
+            ssl_require=True,
+
+        )
+
+    }
+
+
+else:
+
+    # Local SQLite
+
+    DATABASES = {
+
+        "default": {
+
+            "ENGINE":
+            "django.db.backends.sqlite3",
+
+            "NAME":
+            BASE_DIR / "db.sqlite3",
+
+        }
+
+    }
+
+
+
+# ======================================================
+# Password Validation
+# ======================================================
 
 AUTH_PASSWORD_VALIDATORS = [
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+
+        "NAME":
+        "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+
     },
 
-    {
-        'NAME':
-        'django.contrib.auth.password_validation.MinimumLengthValidator',
-    },
 
     {
-        'NAME':
-        'django.contrib.auth.password_validation.CommonPasswordValidator',
+
+        "NAME":
+        "django.contrib.auth.password_validation.MinimumLengthValidator",
+
     },
 
+
     {
-        'NAME':
-        'django.contrib.auth.password_validation.NumericPasswordValidator',
+
+        "NAME":
+        "django.contrib.auth.password_validation.CommonPasswordValidator",
+
+    },
+
+
+    {
+
+        "NAME":
+        "django.contrib.auth.password_validation.NumericPasswordValidator",
+
     },
 
 ]
 
 
-# Language and timezone
 
-LANGUAGE_CODE = 'en-us'
+# ======================================================
+# Language / Timezone
+# ======================================================
 
-TIME_ZONE = 'Asia/Kolkata'
+LANGUAGE_CODE = "en-us"
+
+
+TIME_ZONE = "Asia/Kolkata"
+
 
 USE_I18N = True
+
 
 USE_TZ = True
 
 
 
-# Static files
+# ======================================================
+# Static Files
+# ======================================================
 
-STATIC_URL = '/static/'
+STATIC_URL = "/static/"
 
 
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
 STATICFILES_DIRS = [
 
-    BASE_DIR / 'myapp' / 'static',
+    BASE_DIR / "myapp" / "static",
 
 ]
 
@@ -184,7 +281,11 @@ STATICFILES_STORAGE = (
 
 
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ======================================================
+# Default Primary Key
+# ======================================================
+
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 
 # Local database
