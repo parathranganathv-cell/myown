@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Expense Tracker</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>Expense Tracker</title>
 
 <style>
 
@@ -13,263 +13,429 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
-    font-family:'Poppins',sans-serif;
+    font-family:Arial,sans-serif;
 }
+
 
 body{
+
     background:linear-gradient(135deg,#0f172a,#1e3a8a,#2563eb);
     min-height:100vh;
+
 }
+
 
 a{
+
     text-decoration:none;
+
 }
 
-/* =======================
-   Navigation
-======================= */
+
+/* Navbar */
 
 .navbar{
+
     width:100%;
     background:rgba(255,255,255,.1);
-    backdrop-filter:blur(12px);
-    padding:18px 50px;
-    box-shadow:0 5px 20px rgba(0,0,0,.25);
-}
+    padding:15px 25px;
+    backdrop-filter:blur(10px);
 
-.ibox{
     display:flex;
-    justify-content:center;
-    gap:25px;
-    flex-wrap:wrap;
-}
-
-.lbox{
-    list-style:none;
-}
-
-.lbox a{
-    color:white;
-    font-size:17px;
-    font-weight:500;
-    padding:14px 28px;
-    display:block;
-    border-radius:15px;
-    transition:.35s;
-    background:rgba(255,255,255,.15);
-}
-
-.lbox a:hover{
-    background:white;
-    color:#2563eb;
-    transform:translateY(-5px);
-    box-shadow:0 10px 20px rgba(0,0,0,.25);
-}
-
-/* =======================
-   Hero
-======================= */
-
-.container{
-    display:flex;
-    justify-content:center;
+    justify-content:space-between;
     align-items:center;
-    flex-direction:column;
-    height:75vh;
-    color:white;
-    text-align:center;
+
 }
 
-.container h1{
-    font-size:60px;
-    margin-bottom:20px;
-}
 
-.container p{
-    font-size:20px;
-    width:70%;
-    opacity:.9;
-}
 
-/* =======================
-   Cards
-======================= */
+/* Username */
 
-.card{
-    margin-top:50px;
-    display:flex;
-    gap:25px;
-    flex-wrap:wrap;
-    justify-content:center;
-}
+.welcome{
 
-.box{
-    width:220px;
-    height:140px;
-    background:rgba(255,255,255,.15);
-    backdrop-filter:blur(15px);
-    border-radius:20px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    transition:.3s;
-    cursor:pointer;
-}
-
-.box:hover{
-    transform:scale(1.08);
-    background:white;
-}
-
-.box a{
     color:white;
     font-size:22px;
-    font-weight:600;
-    width:100%;
-    height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
-.box:hover a{
-    color:#2563eb;
-}
-
-/* =======================
-   Clear Button
-======================= */
-
-.clear-box{
-    text-align:center;
-    margin-bottom:40px;
-}
-
-.clear-btn{
-
-    background:#dc3545;
-    color:white;
-    border:none;
-    padding:15px 35px;
-    border-radius:10px;
-    font-size:18px;
     font-weight:bold;
-    cursor:pointer;
-    transition:.3s;
-}
-
-.clear-btn:hover{
-
-    background:#b30000;
-    transform:scale(1.05);
 
 }
 
-/* =======================
-   Mobile
-======================= */
 
-@media(max-width:900px){
+
+/* Logout */
+
+.logout{
+
+    background:#198754;
+    color:white;
+
+    padding:12px 25px;
+
+    border-radius:8px;
+
+    font-size:16px;
+
+    display:inline-block;
+
+}
+
+
+
+.logout:hover{
+
+    opacity:.9;
+
+}
+
+
+
+/* Storage Message */
+
+.storage-box{
+
+    position:fixed;
+
+    top:80px;
+    right:20px;
+
+    background:#ffc107;
+
+    color:black;
+
+    padding:12px 20px;
+
+    border-radius:10px;
+
+    font-weight:bold;
+
+    z-index:1000;
+
+}
+
+
+
+/* Main */
+
+.container{
+
+    text-align:center;
+
+    color:white;
+
+    margin-top:70px;
+
+}
+
+
 
 .container h1{
-    font-size:40px;
+
+    font-size:50px;
+
+    margin-bottom:40px;
+
 }
 
-.container p{
-    width:90%;
+
+
+/* Cards */
+
+.cards{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:25px;
+
+    flex-wrap:wrap;
+
 }
 
-.ibox{
-    flex-direction:column;
+
+
+.card{
+
+    width:220px;
+
+    height:140px;
+
+    background:rgba(255,255,255,.15);
+
+    border-radius:15px;
+
+    display:flex;
+
+    justify-content:center;
+
     align-items:center;
-}
+
+    transition:.3s;
 
 }
+
+
+
+.card:hover{
+
+    transform:scale(1.05);
+
+    background:white;
+
+}
+
+
+
+.card a{
+
+    width:100%;
+
+    height:100%;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    color:white;
+
+    font-size:22px;
+
+    font-weight:bold;
+
+}
+
+
+
+.card:hover a{
+
+    color:#2563eb;
+
+}
+
+
+
+/* Clear Button */
+
+.bottom{
+
+    margin-top:60px;
+
+}
+
+
+
+.clear{
+
+    background:#dc3545;
+
+    color:white;
+
+    padding:14px 30px;
+
+    border:none;
+
+    border-radius:8px;
+
+    cursor:pointer;
+
+    font-size:17px;
+
+}
+
+
+
+.clear:hover{
+
+    opacity:.9;
+
+}
+
+
+
+/* Mobile */
+
+@media(max-width:700px){
+
+
+.navbar{
+
+    padding:15px;
+
+}
+
+
+.welcome{
+
+    font-size:16px;
+
+}
+
+
+.container h1{
+
+    font-size:35px;
+
+}
+
+
+.card{
+
+    width:90%;
+
+}
+
+
+.storage-box{
+
+    top:70px;
+
+    right:10px;
+
+    font-size:13px;
+
+}
+
+
+}
+
 
 </style>
 
 </head>
 
+
 <body>
 
-<!-- Navigation -->
 
 <nav class="navbar">
 
-<ul class="ibox">
 
-<li class="lbox">
-<a href="/i/">🏠 Home</a>
-</li>
+<div class="welcome">
 
-<li class="lbox">
-<a href="/e/">💰 My Earnings</a>
-</li>
+Welcome, {{ request.user.username }}
 
-<li class="lbox">
-<a href="/a/">💳 Amount Spend</a>
-</li>
+</div>
 
-<li class="lbox">
-<a href="/c/">📅 Calendar</a>
-</li>
 
-<li class="lbox">
-<a href="/n/">📝 My Notes</a>
-</li>
 
-</ul>
+<a href="{% url 'logout' %}" class="logout">
+
+🚪 Logout
+
+</a>
+
 
 </nav>
 
-<!-- Hero -->
+
+
+{% if storage %}
+
+<div class="storage-box">
+
+⚠ Database Storage Used:
+{{ storage }}
+
+</div>
+
+{% endif %}
+
+
+
+
 
 <div class="container">
 
-<h1>Expense Tracker</h1>
+
+<h1>
+Expense Tracker
+</h1>
+
+
+
+<div class="cards">
+
 
 
 <div class="card">
 
-<div class="box">
-<a href="/e/">💰 My Earnings</a>
-</div>
+<a href="{% url 'earning' %}">
 
-<div class="box">
-<a href="/a/">💳 Expense</a>
-</div>
+💰 Earnings
 
-<div class="box">
-<a href="/c/">📅 Calendar</a>
-</div>
-
-<div class="box">
-<a href="/n/">📝 My Notes</a>
-</div>
+</a>
 
 </div>
 
+
+
+
+<div class="card">
+
+<a href="{% url 'amount' %}">
+
+💳 Expense
+
+</a>
+
 </div>
 
-<!-- Clear All Data -->
 
-<div class="clear-box">
 
-<form method="POST"
-      action="{% url 'clear_all_data' %}"
-      onsubmit="return confirm('⚠️ This will permanently delete ALL Budgets, Expenses, Earnings and Notes. Are you sure?');">
+
+<div class="card">
+
+<a href="{% url 'calendar' %}">
+
+📅 Calendar
+
+</a>
+
+</div>
+
+
+
+
+<div class="card">
+
+<a href="{% url 'note' %}">
+
+📝 Notes
+
+</a>
+
+</div>
+
+
+</div>
+
+
+
+<div class="bottom">
+
+
+<form method="POST" action="{% url 'clear_all_data' %}">
 
 {% csrf_token %}
 
-<button class="clear-btn" type="submit">
+
+<button class="clear" type="submit">
 
 🗑 Clear All Data
 
 </button>
 
+
 </form>
+
 
 </div>
 
+
+</div>
+
+
 </body>
+
 </html>

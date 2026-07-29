@@ -3,6 +3,10 @@ from django.http import HttpResponse
 from django.db.models import Sum
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
 
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -13,245 +17,255 @@ from reportlab.platypus import (
 )
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+from django.db import connection
 
 from .models import Budget, Expense, Earnings, Note
+from .utils import check_database_storage
 
 
 # ==========================
 # Home
 # ==========================
 
-def Home(request):
-    return render(request, "index.html")
+# @login_required(login_url="login")
+# def Home(request):
+#     return render(request, "index.html")
 
 
 # ==========================
 # Expense Page
 # ==========================
 
+@login_required(login_url="login")
 def Amount(request):
 
-    # --------------------
     # Clear Budget
-    # --------------------
-
     if request.method == "POST" and "clear_budget" in request.POST:
 
-        budget = Budget.objects.first()
+        budget, created = Budget.objects.get_or_create(
+            user=request.user,
+            defaults={"fixed_amount":0}
+        )
 
-        if budget:
-            budget.fixed_amount = 0
-            budget.save()
+        budget.fixed_amount = 0
+        budget.save()
 
         return redirect("amount")
 
-    # --------------------
-    # Save Budget
-    # --------------------
 
+    # Save Budget
     if request.method == "POST" and "save_budget" in request.POST:
 
         fixed_amount = request.POST.get("fixed_amount")
 
-        budget = Budget.objects.first()
 
-        if budget:
+        budget, created = Budget.objects.get_or_create(
+            user=request.user,
+            defaults={
+                "fixed_amount":fixed_amount
+            }
+        )
 
+
+        if not created:
             budget.fixed_amount = fixed_amount
             budget.save()
 
-        else:
-
-            Budget.objects.create(
-                fixed_amount=fixed_amount
-            )
 
         return redirect("amount")
 
-    # --------------------
-    # Save Expense
-    # --------------------
 
+
+    # Save Expense
     if request.method == "POST" and "save_expense" in request.POST:
 
         amount = request.POST.get("amount")
         reason = request.POST.get("reason")
 
-        budget = Budget.objects.first()
 
-        if budget is None:
+        budget, created = Budget.objects.get_or_create(
+            user=request.user,
+            defaults={
+                "fixed_amount":0
+            }
+        )
 
-            budget = Budget.objects.create(
-                fixed_amount=0
-            )
 
         Expense.objects.create(
+
+            user=request.user,
             budget=budget,
             amount=amount,
             reason=reason
+
         )
+
 
         return redirect("amount")
 
-    # --------------------
-    # Filter
-    # --------------------
+
+
+    # Display Data
 
     from_date = request.GET.get("from_date")
     to_date = request.GET.get("to_date")
 
-    budget = Budget.objects.first()
 
-    if budget:
-
-        amounts = Expense.objects.filter(
-            budget=budget
-        ).order_by("-created_at")
-
-        if from_date:
-            amounts = amounts.filter(
-                created_at__date__gte=from_date
-            )
-
-        if to_date:
-            amounts = amounts.filter(
-                created_at__date__lte=to_date
-            )
-
-        total_amount = amounts.aggregate(
-            Sum("amount")
-        )["amount__sum"] or 0
-
-        fixed_amount = budget.fixed_amount
-
-        remaining_amount = fixed_amount - total_amount
-
-    else:
-
-        amounts = Expense.objects.none()
-
-        fixed_amount = 0
-
-        total_amount = 0
-
-        remaining_amount = 0
-
-    context = {
-
-        "amounts": amounts,
-
-        "fixed_amount": fixed_amount,
-
-        "remaining_amount": remaining_amount,
-
-        "total_amount": total_amount,
-
-        "from_date": from_date,
-
-        "to_date": to_date,
-
-    }
-
-    return render(
-        request,
-        "amount.html",
-        context
+    budget, created = Budget.objects.get_or_create(
+        user=request.user,
+        defaults={
+            "fixed_amount":0
+        }
     )
-# ==========================
-# Earnings Page
-# ==========================
 
-def Earning(request):
 
-    # --------------------
-    # Save Earnings
-    # --------------------
+    amounts = Expense.objects.filter(
+        user=request.user,
+        budget=budget
+    )
 
-    if request.method == "POST":
-
-        amount = request.POST.get("amount")
-        reason = request.POST.get("reason")
-
-        Earnings.objects.create(
-            amount=amount,
-            reason=reason
-        )
-
-        return redirect("earning")
-
-    # --------------------
-    # Filter
-    # --------------------
-
-    from_date = request.GET.get("from_date")
-    to_date = request.GET.get("to_date")
-
-    amounts = Earnings.objects.all().order_by("-created_at")
 
     if from_date:
         amounts = amounts.filter(
             created_at__date__gte=from_date
         )
 
+
     if to_date:
         amounts = amounts.filter(
             created_at__date__lte=to_date
         )
 
+
     total_amount = amounts.aggregate(
         Sum("amount")
     )["amount__sum"] or 0
 
-    context = {
 
-        "amounts": amounts,
 
-        "total_amount": total_amount,
+    fixed_amount = budget.fixed_amount
 
-        "from_date": from_date,
 
-        "to_date": to_date,
+    remaining_amount = fixed_amount - total_amount
 
-    }
+
+
+    return render(
+        request,
+        "amount.html",
+        {
+            "amounts":amounts,
+            "fixed_amount":fixed_amount,
+            "remaining_amount":remaining_amount,
+            "total_amount":total_amount,
+            "from_date":from_date,
+            "to_date":to_date,
+        }
+    )
+# ==========================
+# Earnings Page
+# ==========================
+
+@login_required(login_url="login")
+def Earning(request):
+
+    if request.method == "POST":
+
+        amount = request.POST.get("amount")
+        reason = request.POST.get("reason")
+
+
+        Earnings.objects.create(
+
+            user=request.user,
+            amount=amount,
+            reason=reason
+
+        )
+
+
+        return redirect("earning")
+
+
+
+    from_date = request.GET.get("from_date")
+    to_date = request.GET.get("to_date")
+
+
+    amounts = Earnings.objects.filter(
+        user=request.user
+    )
+
+
+    if from_date:
+        amounts = amounts.filter(
+            created_at__date__gte=from_date
+        )
+
+
+    if to_date:
+        amounts = amounts.filter(
+            created_at__date__lte=to_date
+        )
+
+
+    total_amount = amounts.aggregate(
+        Sum("amount")
+    )["amount__sum"] or 0
+
+
 
     return render(
         request,
         "myearnings.html",
-        context
+        {
+            "amounts":amounts,
+            "total_amount":total_amount
+        }
     )
-
 
 # ==========================
 # Notes
 # ==========================
 
+@login_required(login_url="login")
 def mynotes(request):
 
     if request.method == "POST":
 
         content = request.POST.get("content")
 
+
         if content:
+
             Note.objects.create(
+
+                user=request.user,
                 content=content
+
             )
+
 
         return redirect("note")
 
-    notes = Note.objects.all().order_by("-created_at")
+
+
+    notes = Note.objects.filter(
+        user=request.user
+    )
+
 
     return render(
         request,
         "mynotes.html",
         {
-            "notes": notes
+            "notes":notes
         }
     )
-
 # ==========================
 # Calendar
 # ==========================
-
+@login_required(login_url="login")
 def Calender(request):
 
     return render(
@@ -498,24 +512,153 @@ def download_earnings_pdf(request):
 # Clear All Data
 # ==========================
 
+@login_required(login_url="login")
 @require_POST
 def clear_all_data(request):
 
-    Expense.objects.all().delete()
-    Earnings.objects.all().delete()
-    Note.objects.all().delete()
+    Expense.objects.filter(
+        user=request.user
+    ).delete()
 
-    budget = Budget.objects.first()
+
+    Earnings.objects.filter(
+        user=request.user
+    ).delete()
+
+
+    Note.objects.filter(
+        user=request.user
+    ).delete()
+
+
+
+    budget = Budget.objects.filter(
+        user=request.user
+    ).first()
+
 
     if budget:
 
         budget.fixed_amount = 0
         budget.save()
 
-    else:
 
-        Budget.objects.create(
-            fixed_amount=0
-        )
 
     return redirect("home")
+
+def findex(request):
+    return render(request, "findex.html")
+def register(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+        confirm = request.POST.get("confirm_password")
+
+        if password != confirm:
+            messages.error(request, "Passwords do not match.")
+            return redirect("register")
+
+        if User.objects.filter(username=username).exists():
+            messages.error(request, "Username already exists.")
+            return redirect("register")
+
+        User.objects.create_user(
+            username=username,
+            password=password
+        )
+
+        messages.success(request, "Registration Successful. Please Login.")
+        return redirect("login")
+
+    return render(request, "register.html")
+
+
+def login_user(request):
+
+    if request.method == "POST":
+
+        username = request.POST.get("username")
+        password = request.POST.get("password")
+
+        if not User.objects.filter(username=username).exists():
+            messages.error(request, "Please register first to continue.")
+            return redirect("register")
+
+        user = authenticate(
+            request,
+            username=username,
+            password=password
+        )
+
+        if user is not None:
+
+            login(request, user)
+
+            return redirect("home")   # Goes to index.html
+
+        else:
+
+            messages.error(request, "Invalid Password.")
+            return redirect("login")
+
+    return render(request, "login.html")
+
+
+def logout_user(request):
+    logout(request)
+    return redirect("findex")
+
+
+@login_required(login_url="login")
+def Home(request):
+
+    storage = None
+
+    db_engine = connection.vendor
+
+
+    if db_engine == "postgresql":
+
+        # Render PostgreSQL storage
+
+        with connection.cursor() as cursor:
+
+            cursor.execute(
+                """
+                SELECT pg_size_pretty(
+                    pg_database_size(current_database())
+                );
+                """
+            )
+
+            storage = cursor.fetchone()[0]
+
+
+    elif db_engine == "sqlite":
+
+        # Local SQLite storage
+
+        import os
+
+        db_path = connection.settings_dict["NAME"]
+
+        size_bytes = os.path.getsize(db_path)
+
+        size_mb = round(
+            size_bytes / (1024 * 1024),
+            2
+        )
+
+        storage = f"{size_mb} MB"
+
+
+
+    return render(
+        request,
+        "index.html",
+        {
+            "storage": storage
+        }
+    )
