@@ -160,11 +160,5 @@ class CalendarEvent(models.Model):
     )
 
 
-    class Meta:
-
-        db_table = "calendar_event_table"
-
-
     def __str__(self):
-
         return self.title

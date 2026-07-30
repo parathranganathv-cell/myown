@@ -81,18 +81,18 @@ urlpatterns = [
     # Calendar
     # ==========================
 
-    path(
-        "c/",
-        views.Calender,
-        name="calendar"
-    ),
+   path(
+    'calendar/',
+    views.Calender,
+    name="calendar"
+),
 
 
-    path(
-        "add-event/",
-        views.add_event,
-        name="add_event"
-    ),
+path(
+    'add-event/',
+    views.add_event,
+    name="add_event"
+),
 
 
     # ==========================

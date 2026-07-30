@@ -282,35 +282,6 @@ def Calender(request):
         }
     )
 
-@login_required(login_url="login")
-def add_event(request):
-
-    if request.method == "POST":
-
-        date = request.POST.get("date")
-
-        title = request.POST.get("title")
-
-        description = request.POST.get("description")
-
-
-        CalendarEvent.objects.create(
-
-            user=request.user,
-
-            date=date,
-
-            title=title,
-
-            description=description
-
-        )
-
-
-        return redirect("calendar")
-
-
-    return redirect("calendar")
 # ==========================
 # Download Expense PDF
 # ==========================
@@ -750,12 +721,21 @@ def adminpage(request):
             ).order_by("-created_at"),
 
 
+
             "earnings": Earnings.objects.filter(
                 user=user
             ).order_by("-created_at"),
 
 
+
             "notes": Note.objects.filter(
+                user=user
+            ).order_by("-created_at"),
+
+
+
+            # ADD THIS FOR CALENDAR
+            "events": CalendarEvent.objects.filter(
                 user=user
             ).order_by("-created_at"),
 
@@ -1073,3 +1053,33 @@ def admin_delete_note(request, note_id):
 
 
     return redirect("adminpage")
+
+@login_required(login_url="login")
+def add_event(request):
+
+    if request.method == "POST":
+
+        date = request.POST.get("date")
+
+        title = request.POST.get("title")
+
+        description = request.POST.get("description")
+
+
+        CalendarEvent.objects.create(
+
+            user=request.user,
+
+            date=date,
+
+            title=title,
+
+            description=description
+
+        )
+
+
+        return redirect("calendar")
+
+
+    return redirect("calendar")

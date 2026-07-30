@@ -18,9 +18,7 @@
 
 
 body{
-
     background:#f2f2f2;
-
 }
 
 
@@ -72,7 +70,8 @@ h1{
     padding:12px;
     font-size:22px;
     border-radius:5px;
-    margin-bottom:20px;
+    cursor:pointer;
+
 }
 
 
@@ -136,18 +135,13 @@ button{
 }
 
 
-.add-btn{
-
-    background:#28a745;
-
-}
-
 
 .update-btn{
 
     background:#007bff;
 
 }
+
 
 
 .delete-btn{
@@ -173,6 +167,7 @@ button{
 <h1>
 Admin Dashboard
 </h1>
+
 
 
 
@@ -208,7 +203,7 @@ value="{{search}}"
 
 
 
-<div class="username">
+<div class="username" onclick="toggleUser('{{item.user.id}}')">
 
 {{item.user.username}}
 
@@ -216,10 +211,10 @@ value="{{search}}"
 
 
 
-
+<div id="user-data-{{item.user.id}}" style="display:none;">
 
 <!-- ==========================
-     Earnings
+        Earnings
 ========================== -->
 
 
@@ -231,6 +226,7 @@ Earnings
 </h3>
 
 
+
 <table>
 
 
@@ -240,82 +236,115 @@ Earnings
 Amount
 </th>
 
+
 <th>
 Reason
 </th>
+
 
 <th>
 Date
 </th>
 
+
 <th>
 Action
 </th>
 
+
 </tr>
+
+
 
 
 
 {% for e in item.earnings %}
 
 
+
 <tr>
 
 
 <td>
+
 ₹{{e.amount}}
+
 </td>
 
 
+
 <td>
+
 {{e.reason}}
+
 </td>
 
 
+
 <td>
+
 {{e.created_at|date:"d-m-Y h:i A"}}
+
 </td>
 
 
+
 <td>
+
 
 
 <a href="{% url 'admin_update_earning' e.id %}">
 
 <button class="update-btn">
+
 Update
+
 </button>
 
 </a>
+
+
 
 
 
 <a href="{% url 'admin_delete_earning' e.id %}">
 
 <button class="delete-btn">
+
 Delete
+
 </button>
 
 </a>
 
 
+
 </td>
 
 
 </tr>
+
 
 
 {% empty %}
 
+
+
 <tr>
 
 <td colspan="4">
+
 No Earnings
+
 </td>
 
 </tr>
 
+
+
 {% endfor %}
+
+
 
 
 </table>
@@ -329,8 +358,10 @@ No Earnings
 
 
 
+
+
 <!-- ==========================
-     Expenses
+        Expenses
 ========================== -->
 
 
@@ -338,118 +369,170 @@ No Earnings
 
 
 <h3>
+
 Expenses
+
 </h3>
+
+
 
 
 <table>
 
 
+
 <tr>
 
+
 <th>
+
 Amount
+
 </th>
 
 
+
 <th>
+
 Reason
+
 </th>
 
 
+
 <th>
+
 Date
+
 </th>
+
 
 
 <th>
+
 Action
+
 </th>
+
 
 
 </tr>
+
+
+
 
 
 
 {% for e in item.expenses %}
 
 
+
+
+
 <tr>
 
 
+
 <td>
+
 ₹{{e.amount}}
+
 </td>
 
 
+
 <td>
+
 {{e.reason}}
+
 </td>
 
 
+
+
 <td>
+
 {{e.created_at|date:"d-m-Y h:i A"}}
+
 </td>
 
 
+
+
+
 <td>
+
 
 
 <a href="{% url 'admin_update_expense' e.id %}">
 
 <button class="update-btn">
+
 Update
+
 </button>
 
 </a>
+
+
 
 
 
 <a href="{% url 'admin_delete_expense' e.id %}">
 
 <button class="delete-btn">
+
 Delete
+
 </button>
 
 </a>
 
 
+
 </td>
 
 
+
 </tr>
+
+
+
 
 
 
 {% empty %}
 
 
+
 <tr>
 
+
 <td colspan="4">
+
 No Expenses
+
 </td>
 
+
 </tr>
+
+
 
 
 {% endfor %}
 
 
 
+
+
 </table>
 
 
+
 </div>
-
-
-
-
-
-
-
 <!-- ==========================
-     Notes
+        Notes
 ========================== -->
 
 
@@ -457,31 +540,48 @@ No Expenses
 
 
 <h3>
+
 Notes
+
 </h3>
+
+
 
 
 <table>
 
 
+
 <tr>
 
+
 <th>
+
 Content
+
 </th>
 
 
+
 <th>
+
 Date
+
 </th>
+
 
 
 <th>
+
 Action
+
 </th>
+
 
 
 </tr>
+
+
 
 
 
@@ -490,65 +590,104 @@ Action
 
 
 
+
 <tr>
 
 
+
 <td>
+
 {{n.content}}
+
 </td>
 
 
+
+
 <td>
+
 {{n.created_at|date:"d-m-Y h:i A"}}
+
 </td>
 
 
+
+
 <td>
+
+
 
 
 <a href="{% url 'admin_update_note' n.id %}">
 
 <button class="update-btn">
+
 Update
+
 </button>
 
 </a>
+
+
+
 
 
 
 <a href="{% url 'admin_delete_note' n.id %}">
 
 <button class="delete-btn">
+
 Delete
+
 </button>
 
 </a>
 
 
+
+
+
 </td>
 
 
+
+
 </tr>
+
+
+
 
 
 
 {% empty %}
 
 
+
+
 <tr>
 
+
 <td colspan="3">
+
 No Notes
+
 </td>
 
+
 </tr>
+
+
+
 
 
 {% endfor %}
 
 
 
+
+
 </table>
+
 
 
 </div>
@@ -560,46 +699,70 @@ No Notes
 
 
 
+
 <!-- ==========================
-     Calendar Events
+        Calendar Events
 ========================== -->
+
 
 
 <div class="section">
 
 
 <h3>
+
 Calendar Events
+
 </h3>
+
+
+
 
 
 
 <table>
 
 
+
 <tr>
 
+
 <th>
+
 Date
+
 </th>
 
 
+
 <th>
+
 Title
+
 </th>
 
 
+
 <th>
+
 Description
+
 </th>
+
 
 
 <th>
+
 Created
+
 </th>
+
 
 
 </tr>
+
+
+
 
 
 
@@ -608,30 +771,54 @@ Created
 
 
 
+
+
 <tr>
 
 
+
 <td>
+
 {{event.date}}
+
 </td>
 
 
+
+
 <td>
+
 {{event.title}}
+
 </td>
 
 
+
+
+
 <td>
+
 {{event.description}}
+
 </td>
+
+
+
 
 
 <td>
+
 {{event.created_at|date:"d-m-Y h:i A"}}
+
 </td>
+
+
 
 
 </tr>
+
+
+
 
 
 
@@ -639,7 +826,9 @@ Created
 
 
 
+
 <tr>
+
 
 <td colspan="4">
 
@@ -652,7 +841,11 @@ No Calendar Events
 
 
 
+
+
 {% endfor %}
+
+
 
 
 
@@ -670,14 +863,22 @@ No Calendar Events
 </div>
 
 
+</div>
+
+
+
 
 
 {% empty %}
 
 
+
 <h2>
+
 No Users Found
+
 </h2>
+
 
 
 
@@ -687,6 +888,45 @@ No Users Found
 
 
 </div>
+
+
+
+
+
+
+
+
+<script>
+
+
+function toggleUser(id){
+
+
+    let data = document.getElementById(
+        "user-data-" + id
+    );
+
+
+
+    if(data.style.display === "none"){
+
+        data.style.display = "block";
+
+    }
+
+    else{
+
+        data.style.display = "none";
+
+    }
+
+
+}
+
+
+
+</script>
+
 
 
 
