@@ -4,7 +4,8 @@
 
 <meta charset="UTF-8">
 
-<title>Admin Page</title>
+<title>Admin Dashboard</title>
+
 
 <style>
 
@@ -17,7 +18,9 @@
 
 
 body{
+
     background:#f2f2f2;
+
 }
 
 
@@ -54,7 +57,7 @@ h1{
 
     background:white;
     border-radius:8px;
-    margin-bottom:20px;
+    margin-bottom:25px;
     padding:20px;
     box-shadow:0 2px 10px rgba(0,0,0,.2);
 
@@ -66,27 +69,17 @@ h1{
 
     background:#007bff;
     color:white;
-    padding:15px;
+    padding:12px;
     font-size:22px;
     border-radius:5px;
-    cursor:pointer;
-
-}
-
-
-
-.details{
-
-    display:none;
-    margin-top:20px;
-
+    margin-bottom:20px;
 }
 
 
 
 .section{
 
-    margin-top:20px;
+    margin-top:25px;
 
 }
 
@@ -112,7 +105,8 @@ table{
 
 
 
-th,td{
+table th,
+table td{
 
     border:1px solid #ddd;
     padding:10px;
@@ -122,7 +116,7 @@ th,td{
 
 
 
-th{
+table th{
 
     background:#444;
     color:white;
@@ -136,8 +130,9 @@ button{
     padding:8px 15px;
     border:none;
     border-radius:5px;
-    color:white;
     cursor:pointer;
+    color:white;
+
 }
 
 
@@ -168,6 +163,7 @@ button{
 </head>
 
 
+
 <body>
 
 
@@ -182,6 +178,7 @@ Admin Dashboard
 
 <form method="GET">
 
+
 <input
 
 type="text"
@@ -192,9 +189,10 @@ class="search-box"
 
 placeholder="Search User..."
 
-value="{{ search }}"
+value="{{search}}"
 
 >
+
 
 </form>
 
@@ -210,12 +208,9 @@ value="{{ search }}"
 
 
 
-<!-- Click User Name -->
+<div class="username">
 
-<div class="username"
-onclick="showDetails('{{ item.user.id }}')">
-
-{{ item.user.username }}
+{{item.user.username}}
 
 </div>
 
@@ -223,18 +218,13 @@ onclick="showDetails('{{ item.user.id }}')">
 
 
 
+<!-- ==========================
+     Earnings
+========================== -->
 
-<!-- Hidden Details -->
-
-<div id="details-{{ item.user.id }}" class="details">
-
-
-
-
-
-<!-- Earnings -->
 
 <div class="section">
+
 
 <h3>
 Earnings
@@ -246,10 +236,21 @@ Earnings
 
 <tr>
 
-<th>Amount</th>
-<th>Reason</th>
-<th>Date</th>
-<th>Action</th>
+<th>
+Amount
+</th>
+
+<th>
+Reason
+</th>
+
+<th>
+Date
+</th>
+
+<th>
+Action
+</th>
 
 </tr>
 
@@ -257,42 +258,39 @@ Earnings
 
 {% for e in item.earnings %}
 
+
 <tr>
 
+
 <td>
-₹{{ e.amount }}
+₹{{e.amount}}
 </td>
 
 
 <td>
-{{ e.reason }}
+{{e.reason}}
 </td>
 
 
 <td>
-{{ e.created_at|date:"d-m-Y h:i A" }}
+{{e.created_at|date:"d-m-Y h:i A"}}
 </td>
 
 
 <td>
-
-
-<a href="{% url 'admin_add_earning' item.user.id %}">
-<button class="add-btn">
-Add
-</button>
-</a>
 
 
 <a href="{% url 'admin_update_earning' e.id %}">
+
 <button class="update-btn">
 Update
 </button>
+
 </a>
 
 
-<a href="{% url 'admin_delete_earning' e.id %}"
-onclick="return confirm('Delete this earning?');">
+
+<a href="{% url 'admin_delete_earning' e.id %}">
 
 <button class="delete-btn">
 Delete
@@ -302,6 +300,7 @@ Delete
 
 
 </td>
+
 
 </tr>
 
@@ -316,7 +315,6 @@ No Earnings
 
 </tr>
 
-
 {% endfor %}
 
 
@@ -330,9 +328,14 @@ No Earnings
 
 
 
-<!-- Expenses -->
+
+<!-- ==========================
+     Expenses
+========================== -->
+
 
 <div class="section">
+
 
 <h3>
 Expenses
@@ -344,10 +347,25 @@ Expenses
 
 <tr>
 
-<th>Amount</th>
-<th>Reason</th>
-<th>Date</th>
-<th>Action</th>
+<th>
+Amount
+</th>
+
+
+<th>
+Reason
+</th>
+
+
+<th>
+Date
+</th>
+
+
+<th>
+Action
+</th>
+
 
 </tr>
 
@@ -360,48 +378,40 @@ Expenses
 
 
 <td>
-₹{{ e.amount }}
+₹{{e.amount}}
 </td>
 
 
 <td>
-{{ e.reason }}
+{{e.reason}}
 </td>
 
 
 <td>
-{{ e.created_at|date:"d-m-Y h:i A" }}
+{{e.created_at|date:"d-m-Y h:i A"}}
 </td>
 
 
 <td>
-
-
-<a href="{% url 'admin_add_expense' item.user.id %}">
-<button class="add-btn">
-Add
-</button>
-</a>
-
 
 
 <a href="{% url 'admin_update_expense' e.id %}">
+
 <button class="update-btn">
 Update
 </button>
+
 </a>
 
 
 
-<a href="{% url 'admin_delete_expense' e.id %}"
-onclick="return confirm('Delete this expense?');">
+<a href="{% url 'admin_delete_expense' e.id %}">
 
 <button class="delete-btn">
 Delete
 </button>
 
 </a>
-
 
 
 </td>
@@ -412,6 +422,7 @@ Delete
 
 
 {% empty %}
+
 
 <tr>
 
@@ -437,7 +448,10 @@ No Expenses
 
 
 
-<!-- Notes -->
+<!-- ==========================
+     Notes
+========================== -->
+
 
 <div class="section">
 
@@ -445,7 +459,6 @@ No Expenses
 <h3>
 Notes
 </h3>
-
 
 
 <table>
@@ -457,9 +470,11 @@ Notes
 Content
 </th>
 
+
 <th>
 Date
 </th>
+
 
 <th>
 Action
@@ -467,6 +482,7 @@ Action
 
 
 </tr>
+
 
 
 
@@ -478,44 +494,35 @@ Action
 
 
 <td>
-{{ n.content }}
+{{n.content}}
 </td>
 
 
 <td>
-{{ n.created_at|date:"d-m-Y h:i A" }}
+{{n.created_at|date:"d-m-Y h:i A"}}
 </td>
 
 
 <td>
-
-
-
-<a href="{% url 'admin_add_note' item.user.id %}">
-<button class="add-btn">
-Add
-</button>
-</a>
-
 
 
 <a href="{% url 'admin_update_note' n.id %}">
+
 <button class="update-btn">
 Update
 </button>
+
 </a>
 
 
 
-<a href="{% url 'admin_delete_note' n.id %}"
-onclick="return confirm('Delete this note?');">
+<a href="{% url 'admin_delete_note' n.id %}">
 
 <button class="delete-btn">
 Delete
 </button>
 
 </a>
-
 
 
 </td>
@@ -540,6 +547,7 @@ No Notes
 {% endfor %}
 
 
+
 </table>
 
 
@@ -549,73 +557,136 @@ No Notes
 
 
 
+
+
+
+<!-- ==========================
+     Calendar Events
+========================== -->
+
+
 <div class="section">
 
+
 <h3>
-Calendar
+Calendar Events
 </h3>
 
-<p>
-Calendar page is available for this user.
-</p>
-
-</div>
 
 
+<table>
 
 
-</div>
+<tr>
+
+<th>
+Date
+</th>
 
 
-</div>
+<th>
+Title
+</th>
+
+
+<th>
+Description
+</th>
+
+
+<th>
+Created
+</th>
+
+
+</tr>
+
+
+
+
+{% for event in item.events %}
+
+
+
+<tr>
+
+
+<td>
+{{event.date}}
+</td>
+
+
+<td>
+{{event.title}}
+</td>
+
+
+<td>
+{{event.description}}
+</td>
+
+
+<td>
+{{event.created_at|date:"d-m-Y h:i A"}}
+</td>
+
+
+</tr>
 
 
 
 {% empty %}
 
-<h2>
-No Users Found.
-</h2>
+
+
+<tr>
+
+<td colspan="4">
+
+No Calendar Events
+
+</td>
+
+
+</tr>
+
 
 
 {% endfor %}
 
 
 
+</table>
+
+
+
 </div>
 
 
 
 
 
-<script>
+
+</div>
 
 
-function showDetails(id){
 
 
-    let details = document.getElementById(
-        "details-"+id
-    );
+{% empty %}
 
 
-    if(details.style.display === "none" || details.style.display === ""){
-
-        details.style.display="block";
-
-    }
-
-    else{
-
-        details.style.display="none";
-
-    }
+<h2>
+No Users Found
+</h2>
 
 
-}
+
+{% endfor %}
 
 
-</script>
+
+
+</div>
 
 
 
