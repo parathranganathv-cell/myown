@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta charset="UTF-8">
+
+<title>Admin Page</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial;
+}
+
+
+body{
+    background:#f2f2f2;
+}
+
+
+.container{
+
+    width:95%;
+    margin:30px auto;
+
+}
+
+
+h1{
+
+    text-align:center;
+    margin-bottom:20px;
+
+}
+
+
+.search-box{
+
+    width:100%;
+    padding:12px;
+    font-size:17px;
+    border:1px solid gray;
+    border-radius:5px;
+    margin-bottom:25px;
+
+}
+
+
+
+.user-box{
+
+    background:white;
+    border-radius:8px;
+    margin-bottom:20px;
+    padding:20px;
+    box-shadow:0 2px 10px rgba(0,0,0,.2);
+
+}
+
+
+
+.username{
+
+    background:#007bff;
+    color:white;
+    padding:15px;
+    font-size:22px;
+    border-radius:5px;
+    cursor:pointer;
+
+}
+
+
+
+.details{
+
+    display:none;
+    margin-top:20px;
+
+}
+
+
+
+.section{
+
+    margin-top:20px;
+
+}
+
+
+
+.section h3{
+
+    background:#28a745;
+    color:white;
+    padding:10px;
+
+}
+
+
+
+table{
+
+    width:100%;
+    border-collapse:collapse;
+    margin-top:10px;
+
+}
+
+
+
+th,td{
+
+    border:1px solid #ddd;
+    padding:10px;
+    text-align:center;
+
+}
+
+
+
+th{
+
+    background:#444;
+    color:white;
+
+}
+
+
+
+button{
+
+    padding:8px 15px;
+    border:none;
+    border-radius:5px;
+    color:white;
+    cursor:pointer;
+}
+
+
+.add-btn{
+
+    background:#28a745;
+
+}
+
+
+.update-btn{
+
+    background:#007bff;
+
+}
+
+
+.delete-btn{
+
+    background:#dc3545;
+
+}
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<h1>
+Admin Dashboard
+</h1>
+
+
+
+<form method="GET">
+
+<input
+
+type="text"
+
+name="search"
+
+class="search-box"
+
+placeholder="Search User..."
+
+value="{{ search }}"
+
+>
+
+</form>
+
+
+
+
+
+{% for item in user_data %}
+
+
+
+<div class="user-box">
+
+
+
+<!-- Click User Name -->
+
+<div class="username"
+onclick="showDetails('{{ item.user.id }}')">
+
+{{ item.user.username }}
+
+</div>
+
+
+
+
+
+
+<!-- Hidden Details -->
+
+<div id="details-{{ item.user.id }}" class="details">
+
+
+
+
+
+<!-- Earnings -->
+
+<div class="section">
+
+<h3>
+Earnings
+</h3>
+
+
+<table>
+
+
+<tr>
+
+<th>Amount</th>
+<th>Reason</th>
+<th>Date</th>
+<th>Action</th>
+
+</tr>
+
+
+
+{% for e in item.earnings %}
+
+<tr>
+
+<td>
+₹{{ e.amount }}
+</td>
+
+
+<td>
+{{ e.reason }}
+</td>
+
+
+<td>
+{{ e.created_at|date:"d-m-Y h:i A" }}
+</td>
+
+
+<td>
+
+
+<a href="{% url 'admin_add_earning' item.user.id %}">
+<button class="add-btn">
+Add
+</button>
+</a>
+
+
+<a href="{% url 'admin_update_earning' e.id %}">
+<button class="update-btn">
+Update
+</button>
+</a>
+
+
+<a href="{% url 'admin_delete_earning' e.id %}"
+onclick="return confirm('Delete this earning?');">
+
+<button class="delete-btn">
+Delete
+</button>
+
+</a>
+
+
+</td>
+
+</tr>
+
+
+{% empty %}
+
+<tr>
+
+<td colspan="4">
+No Earnings
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+<!-- Expenses -->
+
+<div class="section">
+
+<h3>
+Expenses
+</h3>
+
+
+<table>
+
+
+<tr>
+
+<th>Amount</th>
+<th>Reason</th>
+<th>Date</th>
+<th>Action</th>
+
+</tr>
+
+
+
+{% for e in item.expenses %}
+
+
+<tr>
+
+
+<td>
+₹{{ e.amount }}
+</td>
+
+
+<td>
+{{ e.reason }}
+</td>
+
+
+<td>
+{{ e.created_at|date:"d-m-Y h:i A" }}
+</td>
+
+
+<td>
+
+
+<a href="{% url 'admin_add_expense' item.user.id %}">
+<button class="add-btn">
+Add
+</button>
+</a>
+
+
+
+<a href="{% url 'admin_update_expense' e.id %}">
+<button class="update-btn">
+Update
+</button>
+</a>
+
+
+
+<a href="{% url 'admin_delete_expense' e.id %}"
+onclick="return confirm('Delete this expense?');">
+
+<button class="delete-btn">
+Delete
+</button>
+
+</a>
+
+
+
+</td>
+
+
+</tr>
+
+
+
+{% empty %}
+
+<tr>
+
+<td colspan="4">
+No Expenses
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+
+
+<!-- Notes -->
+
+<div class="section">
+
+
+<h3>
+Notes
+</h3>
+
+
+
+<table>
+
+
+<tr>
+
+<th>
+Content
+</th>
+
+<th>
+Date
+</th>
+
+<th>
+Action
+</th>
+
+
+</tr>
+
+
+
+{% for n in item.notes %}
+
+
+
+<tr>
+
+
+<td>
+{{ n.content }}
+</td>
+
+
+<td>
+{{ n.created_at|date:"d-m-Y h:i A" }}
+</td>
+
+
+<td>
+
+
+
+<a href="{% url 'admin_add_note' item.user.id %}">
+<button class="add-btn">
+Add
+</button>
+</a>
+
+
+
+<a href="{% url 'admin_update_note' n.id %}">
+<button class="update-btn">
+Update
+</button>
+</a>
+
+
+
+<a href="{% url 'admin_delete_note' n.id %}"
+onclick="return confirm('Delete this note?');">
+
+<button class="delete-btn">
+Delete
+</button>
+
+</a>
+
+
+
+</td>
+
+
+</tr>
+
+
+
+{% empty %}
+
+
+<tr>
+
+<td colspan="3">
+No Notes
+</td>
+
+</tr>
+
+
+{% endfor %}
+
+
+</table>
+
+
+</div>
+
+
+
+
+
+<div class="section">
+
+<h3>
+Calendar
+</h3>
+
+<p>
+Calendar page is available for this user.
+</p>
+
+</div>
+
+
+
+
+</div>
+
+
+</div>
+
+
+
+{% empty %}
+
+<h2>
+No Users Found.
+</h2>
+
+
+{% endfor %}
+
+
+
+</div>
+
+
+
+
+
+<script>
+
+
+function showDetails(id){
+
+
+    let details = document.getElementById(
+        "details-"+id
+    );
+
+
+    if(details.style.display === "none" || details.style.display === ""){
+
+        details.style.display="block";
+
+    }
+
+    else{
+
+        details.style.display="none";
+
+    }
+
+
+}
+
+
+</script>
+
+
+
+</body>
+
+</html>

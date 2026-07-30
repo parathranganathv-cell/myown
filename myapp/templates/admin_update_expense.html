@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Update Expense</title>
+
+</head>
+
+
+<body>
+
+
+<h2>
+Update Expense
+</h2>
+
+
+<form method="POST">
+
+{% csrf_token %}
+
+
+<input 
+type="number"
+name="amount"
+value="{{ expense.amount }}"
+required>
+
+
+<br><br>
+
+
+<input 
+type="text"
+name="reason"
+value="{{ expense.reason }}"
+required>
+
+
+<br><br>
+
+
+<button type="submit">
+
+Update
+
+</button>
+
+
+</form>
+
+
+</body>
+
+</html>

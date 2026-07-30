@@ -133,3 +133,38 @@ class Note(models.Model):
 
     def __str__(self):
         return self.content
+
+# ===========================
+# Calendar Events
+# ===========================
+
+class CalendarEvent(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    date = models.DateField()
+
+    title = models.CharField(
+        max_length=200
+    )
+
+    description = models.TextField(
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+
+    class Meta:
+
+        db_table = "calendar_event_table"
+
+
+    def __str__(self):
+
+        return self.title

@@ -1,88 +1,226 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>English Calendar</title>
 
+
 <style>
+
 body{
-    font-family: Arial, sans-serif;
+
+    font-family:Arial, sans-serif;
     background:#f5f5f5;
     text-align:center;
     margin:20px;
+
 }
+
 
 h1{
+
     margin-bottom:20px;
+
 }
+
+
 
 .controls{
+
     margin-bottom:20px;
+
 }
 
-select{
-    padding:8px 10px;
+
+
+select,button,input,textarea{
+
+    padding:8px;
     font-size:16px;
     margin:5px;
+
 }
 
+
+
 .calendar{
+
     width:700px;
     margin:auto;
     background:white;
     padding:20px;
     border-radius:10px;
-    box-shadow:0 0 10px rgba(0,0,0,.2);
+    box-shadow:0 0 10px gray;
+
 }
+
+
 
 table{
+
     width:100%;
     border-collapse:collapse;
+
 }
 
+
+
 th,td{
+
     border:1px solid #ddd;
     width:14.28%;
     height:70px;
     font-size:18px;
+
 }
+
+
 
 th{
+
     background:#2196F3;
     color:white;
+
 }
+
+
+
+td{
+
+    cursor:pointer;
+
+}
+
+
+
+/* Highlight Event Date */
+
+.event-day{
+
+    background:#ff5252 !important;
+    color:white;
+    font-weight:bold;
+    border-radius:50%;
+
+}
+
+
 
 td:hover{
-    background:#e8f4ff;
-    cursor:pointer;
+
+    background:#dff0ff;
+
 }
+
+
+
+
+/* Event Form */
+
+
+.event-box{
+
+    width:500px;
+    margin:30px auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px gray;
+
+}
+
+
+
+textarea{
+
+    width:90%;
+    height:80px;
+
+}
+
+
+
+/* Event Display */
+
+
+.events-list{
+
+    width:700px;
+    margin:30px auto;
+    background:white;
+    padding:20px;
+    border-radius:10px;
+    box-shadow:0 0 10px gray;
+
+}
+
+
+
+.event-item{
+
+    background:#e8f5e9;
+    padding:15px;
+    margin:10px;
+    border-radius:8px;
+    text-align:left;
+
+}
+
+
 </style>
 
+
 </head>
+
+
 <body>
 
-<h1>English Calendar</h1>
+
+<h1>
+English Calendar
+</h1>
+
+
 
 <div class="controls">
 
+
 <select id="month"></select>
+
 
 <select id="year"></select>
 
-<button onclick="generateCalendar()">Show Calendar</button>
+
+<button onclick="generateCalendar()">
+
+Show Calendar
+
+</button>
+
 
 </div>
 
+
+
+
 <div class="calendar">
+
 
 <h2 id="title"></h2>
 
+
+
 <table>
+
 
 <thead>
 
 <tr>
+
 <th>Sun</th>
 <th>Mon</th>
 <th>Tue</th>
@@ -90,100 +228,416 @@ td:hover{
 <th>Thu</th>
 <th>Fri</th>
 <th>Sat</th>
+
 </tr>
 
 </thead>
+
+
 
 <tbody id="calendarBody">
 
 </tbody>
 
+
 </table>
+
+
 
 </div>
 
+
+
+
+
+<!-- Add Event -->
+
+
+<div class="event-box">
+
+
+<h2>
+Add Event
+</h2>
+
+
+
+<form method="POST" action="{% url 'add_event' %}">
+
+
+{% csrf_token %}
+
+
+
+<input
+type="date"
+name="date"
+required
+>
+
+
+<br>
+
+
+
+<input
+type="text"
+name="title"
+placeholder="Event title"
+required
+>
+
+
+<br>
+
+
+
+<textarea
+name="description"
+placeholder="Description">
+</textarea>
+
+
+<br>
+
+
+
+<button type="submit">
+
+Save Event
+
+</button>
+
+
+
+</form>
+
+
+
+</div>
+
+
+
+
+
+
+<!-- Saved Events -->
+
+
+<div class="events-list">
+
+
+<h2>
+Saved Events
+</h2>
+
+
+
+{% for event in events %}
+
+
+<div class="event-item">
+
+
+<h3>
+{{event.title}}
+</h3>
+
+
+
+<p>
+
+Date :
+{{event.date}}
+
+</p>
+
+
+
+<p>
+
+{{event.description}}
+
+</p>
+
+
+
+</div>
+
+
+
+{% empty %}
+
+
+<p>
+No Events Added
+</p>
+
+
+{% endfor %}
+
+
+
+</div>
+
+
+
+
+
+
+
 <script>
 
+
 const monthSelect=document.getElementById("month");
+
 const yearSelect=document.getElementById("year");
 
+
+
 const months=[
-"January","February","March","April","May","June",
-"July","August","September","October","November","December"
+
+"January",
+"February",
+"March",
+"April",
+"May",
+"June",
+"July",
+"August",
+"September",
+"October",
+"November",
+"December"
+
 ];
 
+
+
+
+
 // Month Dropdown
+
 months.forEach((month,index)=>{
-    let option=document.createElement("option");
-    option.value=index;
-    option.text=month;
-    monthSelect.appendChild(option);
+
+
+let option=document.createElement("option");
+
+option.value=index;
+
+option.text=month;
+
+monthSelect.appendChild(option);
+
+
 });
 
-// Year Dropdown (1950 - 2100)
+
+
+
+
+
+// Year Dropdown
+
 for(let y=1950;y<=2100;y++){
-    let option=document.createElement("option");
-    option.value=y;
-    option.text=y;
-    yearSelect.appendChild(option);
+
+
+let option=document.createElement("option");
+
+option.value=y;
+
+option.text=y;
+
+yearSelect.appendChild(option);
+
+
 }
 
-// Default Current Date
-const today=new Date();
 
-if(today.getFullYear()>=1950 && today.getFullYear()<=2100){
-    yearSelect.value=today.getFullYear();
-}
-else{
-    yearSelect.value=2026;
-}
+
+
+
+
+// Events from Django
+
+
+let eventDates=[
+
+
+{% for event in events %}
+
+"{{event.date|date:'Y-m-d'}}",
+
+{% endfor %}
+
+
+];
+
+
+
+
+
+
+let today=new Date();
+
 
 monthSelect.value=today.getMonth();
 
-generateCalendar();
+yearSelect.value=today.getFullYear();
+
+
+
+
 
 function generateCalendar(){
 
-    let month=parseInt(monthSelect.value);
-    let year=parseInt(yearSelect.value);
 
-    document.getElementById("title").innerHTML=
-        months[month]+" "+year;
+let month=parseInt(monthSelect.value);
 
-    let firstDay=new Date(year,month,1).getDay();
-    let totalDays=new Date(year,month+1,0).getDate();
+let year=parseInt(yearSelect.value);
 
-    let tbody=document.getElementById("calendarBody");
-    tbody.innerHTML="";
 
-    let row=document.createElement("tr");
 
-    for(let i=0;i<firstDay;i++){
-        row.appendChild(document.createElement("td"));
-    }
+document.getElementById("title").innerHTML =
+months[month]+" "+year;
 
-    for(let day=1;day<=totalDays;day++){
 
-        if((firstDay+day-1)%7===0 && day!==1){
-            tbody.appendChild(row);
-            row=document.createElement("tr");
-        }
 
-        let cell=document.createElement("td");
-        cell.innerHTML=day;
 
-        row.appendChild(cell);
-    }
 
-    while(row.children.length<7){
-        row.appendChild(document.createElement("td"));
-    }
+let firstDay =
+new Date(year,month,1).getDay();
 
-    tbody.appendChild(row);
+
+
+let totalDays =
+new Date(year,month+1,0).getDate();
+
+
+
+
+let tbody =
+document.getElementById("calendarBody");
+
+
+tbody.innerHTML="";
+
+
+
+let row=document.createElement("tr");
+
+
+
+
+
+// Empty cells before first day
+
+for(let i=0;i<firstDay;i++){
+
+    row.appendChild(document.createElement("td"));
 
 }
 
+
+
+
+
+
+// Dates
+
+for(let day=1;day<=totalDays;day++){
+
+
+
+if((firstDay+day-1)%7===0 && day!==1){
+
+    tbody.appendChild(row);
+
+    row=document.createElement("tr");
+
+}
+
+
+
+
+
+let cell=document.createElement("td");
+
+
+cell.innerHTML=day;
+
+
+
+
+
+// Format date YYYY-MM-DD
+
+let currentDate =
+
+year+"-"+
+
+String(month+1).padStart(2,"0")+"-"+
+
+String(day).padStart(2,"0");
+
+
+
+
+
+
+// Highlight saved event dates
+
+if(eventDates.includes(currentDate)){
+
+
+    cell.classList.add("event-day");
+
+
+}
+
+
+
+
+
+row.appendChild(cell);
+
+
+
+}
+
+
+
+
+
+
+// Complete last row
+
+while(row.children.length<7){
+
+    row.appendChild(document.createElement("td"));
+
+}
+
+
+
+tbody.appendChild(row);
+
+
+
+}
+
+
+
+
+
+generateCalendar();
+
+
+
 </script>
 
+
+
 </body>
+
 </html>

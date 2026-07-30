@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.shortcuts import get_object_or_404
 
 from reportlab.platypus import (
     SimpleDocTemplate,
@@ -19,7 +20,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from django.db import connection
 
-from .models import Budget, Expense, Earnings, Note
+from .models import Budget, Expense, Earnings, Note,CalendarEvent
 from .utils import check_database_storage
 
 
@@ -268,10 +269,48 @@ def mynotes(request):
 @login_required(login_url="login")
 def Calender(request):
 
+    events = CalendarEvent.objects.filter(
+        user=request.user
+    )
+
+
     return render(
         request,
-        "calender.html"
+        "calender.html",
+        {
+            "events":events
+        }
     )
+
+@login_required(login_url="login")
+def add_event(request):
+
+    if request.method == "POST":
+
+        date = request.POST.get("date")
+
+        title = request.POST.get("title")
+
+        description = request.POST.get("description")
+
+
+        CalendarEvent.objects.create(
+
+            user=request.user,
+
+            date=date,
+
+            title=title,
+
+            description=description
+
+        )
+
+
+        return redirect("calendar")
+
+
+    return redirect("calendar")
 # ==========================
 # Download Expense PDF
 # ==========================
@@ -582,9 +621,6 @@ def login_user(request):
         username = request.POST.get("username")
         password = request.POST.get("password")
 
-        if not User.objects.filter(username=username).exists():
-            messages.error(request, "Please register first to continue.")
-            return redirect("register")
 
         user = authenticate(
             request,
@@ -592,19 +628,32 @@ def login_user(request):
             password=password
         )
 
+
         if user is not None:
 
             login(request, user)
 
-            return redirect("home")   # Goes to index.html
+
+            # Admin user redirect
+            if user.username == "Parathown":
+                return redirect("adminpage")
+
+
+            # Normal users
+            return redirect("home")
+
 
         else:
 
-            messages.error(request, "Invalid Password.")
+            messages.error(
+                request,
+                "Invalid username or password."
+            )
+
             return redirect("login")
 
-    return render(request, "login.html")
 
+    return render(request, "login.html")
 
 def logout_user(request):
     logout(request)
@@ -662,3 +711,365 @@ def Home(request):
             "storage": storage
         }
     )
+@login_required(login_url="login")
+def adminpage(request):
+
+    # Only Parathown can access admin page
+    if request.user.username != "Parathown":
+        return redirect("home")
+
+
+    search = request.GET.get("search", "")
+
+
+    users = User.objects.exclude(
+        username="Parathown"
+    ).order_by("username")
+
+
+    if search:
+
+        users = users.filter(
+            username__icontains=search
+        )
+
+
+    user_data = []
+
+
+    for user in users:
+
+
+        user_data.append({
+
+            "user": user,
+
+
+            "expenses": Expense.objects.filter(
+                user=user
+            ).order_by("-created_at"),
+
+
+            "earnings": Earnings.objects.filter(
+                user=user
+            ).order_by("-created_at"),
+
+
+            "notes": Note.objects.filter(
+                user=user
+            ).order_by("-created_at"),
+
+
+        })
+
+
+    return render(
+
+        request,
+
+        "adminpage.html",
+
+        {
+            "user_data": user_data,
+            "search": search
+        }
+
+    )
+@login_required(login_url="login")
+def admin_delete_expense(request, expense_id):
+
+    # Only allow your admin account
+    if request.user.username != "Parathown":
+        return redirect("home")
+
+    expense = get_object_or_404(
+        Expense,
+        id=expense_id
+    )
+
+    expense.delete()
+
+    messages.success(
+        request,
+        "Expense deleted successfully."
+    )
+
+    return redirect("adminpage")
+@login_required(login_url="login")
+def admin_add_expense(request, user_id):
+
+    selected_user = get_object_or_404(
+        User,
+        id=user_id
+    )
+
+
+    if request.method == "POST":
+
+        amount = request.POST.get("amount")
+        reason = request.POST.get("reason")
+
+
+        budget, created = Budget.objects.get_or_create(
+
+            user=selected_user,
+
+            defaults={
+                "fixed_amount":0
+            }
+
+        )
+
+
+        Expense.objects.create(
+
+            user=selected_user,
+
+            budget=budget,
+
+            amount=amount,
+
+            reason=reason
+
+        )
+
+
+        return redirect("adminpage")
+
+
+
+    return render(
+
+        request,
+
+        "admin_add_expense.html",
+
+        {
+            "selected_user":selected_user
+        }
+
+    )
+@login_required(login_url="login")
+def admin_update_expense(request, expense_id):
+
+    expense = get_object_or_404(
+
+        Expense,
+
+        id=expense_id
+
+    )
+
+
+    if request.method == "POST":
+
+
+        expense.amount = request.POST.get("amount")
+
+        expense.reason = request.POST.get("reason")
+
+        expense.save()
+
+
+        return redirect("adminpage")
+
+
+
+    return render(
+
+        request,
+
+        "admin_update_expense.html",
+
+        {
+            "expense":expense
+        }
+
+    )
+
+@login_required(login_url="login")
+def admin_add_earning(request, user_id):
+
+    selected_user = get_object_or_404(
+        User,
+        id=user_id
+    )
+
+
+    if request.method == "POST":
+
+        amount = request.POST.get("amount")
+
+        reason = request.POST.get("reason")
+
+
+        Earnings.objects.create(
+
+            user=selected_user,
+
+            amount=amount,
+
+            reason=reason
+
+        )
+
+
+        return redirect("adminpage")
+
+
+
+    return render(
+
+        request,
+
+        "admin_add_earning.html",
+
+        {
+            "selected_user":selected_user
+        }
+
+    )
+@login_required(login_url="login")
+def admin_update_earning(request, earning_id):
+
+    earning = get_object_or_404(
+
+        Earnings,
+
+        id=earning_id
+
+    )
+
+
+    if request.method == "POST":
+
+
+        earning.amount = request.POST.get("amount")
+
+        earning.reason = request.POST.get("reason")
+
+
+        earning.save()
+
+
+        return redirect("adminpage")
+
+
+
+    return render(
+
+        request,
+
+        "admin_update_earning.html",
+
+        {
+            "earning":earning
+        }
+
+    )
+@login_required(login_url="login")
+def admin_delete_earning(request, earning_id):
+
+    earning = get_object_or_404(
+
+        Earnings,
+
+        id=earning_id
+
+    )
+
+
+    earning.delete()
+
+
+    return redirect("adminpage")
+@login_required(login_url="login")
+def admin_add_note(request, user_id):
+
+    selected_user = get_object_or_404(
+        User,
+        id=user_id
+    )
+
+
+    if request.method == "POST":
+
+        content = request.POST.get("content")
+
+
+        Note.objects.create(
+
+            user=selected_user,
+
+            content=content
+
+        )
+
+
+        return redirect("adminpage")
+
+
+
+    return render(
+
+        request,
+
+        "admin_add_note.html",
+
+        {
+            "selected_user": selected_user
+        }
+
+    )
+@login_required(login_url="login")
+def admin_update_note(request, note_id):
+
+    note = get_object_or_404(
+
+        Note,
+
+        id=note_id
+
+    )
+
+
+    if request.method == "POST":
+
+
+        note.content = request.POST.get("content")
+
+
+        note.save()
+
+
+        return redirect("adminpage")
+
+
+
+    return render(
+
+        request,
+
+        "admin_update_note.html",
+
+        {
+            "note": note
+        }
+
+    )
+@login_required(login_url="login")
+def admin_delete_note(request, note_id):
+
+    note = get_object_or_404(
+
+        Note,
+
+        id=note_id
+
+    )
+
+
+    note.delete()
+
+
+    return redirect("adminpage")

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Add Note</title>
+
+</head>
+
+
+<body>
+
+
+<h2>
+Add Note for {{ selected_user.username }}
+</h2>
+
+
+<form method="POST">
+
+{% csrf_token %}
+
+
+<textarea
+
+name="content"
+
+placeholder="Enter Note"
+
+rows="5"
+
+cols="40"
+
+required>
+
+</textarea>
+
+
+<br><br>
+
+
+<button type="submit">
+
+Save Note
+
+</button>
+
+
+</form>
+
+
+</body>
+
+</html>
