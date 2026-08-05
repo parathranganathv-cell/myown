@@ -286,191 +286,110 @@ def Calender(request):
 # Download Expense PDF
 # ==========================
 
+@login_required(login_url="login")
 def download_expense_pdf(request):
 
     from_date = request.GET.get("from_date")
     to_date = request.GET.get("to_date")
 
-    # Remove invalid None values from URL
     if from_date in ["", "None", None]:
         from_date = None
 
     if to_date in ["", "None", None]:
         to_date = None
 
+    # Only logged-in user's expenses
+    expenses = Expense.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
 
-    # Get all expenses
-    expenses = Expense.objects.all().order_by("-created_at")
-
-
-    # Filter by date
     if from_date:
         expenses = expenses.filter(
             created_at__date__gte=from_date
         )
-
 
     if to_date:
         expenses = expenses.filter(
             created_at__date__lte=to_date
         )
 
-
-    # Calculate total expense
     total = expenses.aggregate(
         Sum("amount")
     )["amount__sum"] or 0
 
-
-
-    # Create PDF response
-    response = HttpResponse(
-        content_type="application/pdf"
-    )
-
-    response["Content-Disposition"] = (
-        'attachment; filename="Expense_Report.pdf"'
-    )
-
+    response = HttpResponse(content_type="application/pdf")
+    response["Content-Disposition"] = 'attachment; filename="Expense_Report.pdf"'
 
     doc = SimpleDocTemplate(response)
 
-
-
-    # PDF table heading
     data = [
-        [
-            "Amount",
-            "Reason",
-            "Date & Time"
-        ]
+        ["Amount", "Reason", "Date & Time"]
     ]
 
-
-
-    # Add expense data
     for item in expenses:
 
-        # Convert UTC time to Indian Standard Time
-        indian_time = timezone.localtime(
-            item.created_at
-        )
+        indian_time = timezone.localtime(item.created_at)
 
-        data.append(
-            [
-                f"₹{item.amount}",
-                item.reason,
-                indian_time.strftime(
-                    "%d-%m-%Y %I:%M %p"
-                )
-            ]
-        )
+        data.append([
+            f"₹{item.amount}",
+            item.reason,
+            indian_time.strftime("%d-%m-%Y %I:%M %p")
+        ])
 
+    data.append([
+        "",
+        "Total Expense",
+        f"₹{total}"
+    ])
 
-
-    # Add total row
-    data.append(
-        [
-            "",
-            "Total Expense",
-            f"₹{total}"
-        ]
-    )
-
-
-
-    # Create table
     table = Table(data)
 
+    table.setStyle(TableStyle([
 
+        ("BACKGROUND", (0,0), (-1,0), colors.darkblue),
+        ("TEXTCOLOR", (0,0), (-1,0), colors.white),
 
-    # Table styling
-    table.setStyle(
-        TableStyle([
+        ("GRID", (0,0), (-1,-1), 1, colors.black),
 
-            # Header
-            (
-                "BACKGROUND",
-                (0,0),
-                (-1,0),
-                colors.darkblue
-            ),
+        ("BACKGROUND", (0,1), (-1,-2), colors.beige),
 
-            (
-                "TEXTCOLOR",
-                (0,0),
-                (-1,0),
-                colors.white
-            ),
+        ("BACKGROUND", (0,-1), (-1,-1), colors.lightgrey),
 
+        ("FONTNAME", (0,-1), (-1,-1), "Helvetica-Bold"),
 
-            # Border
-            (
-                "GRID",
-                (0,0),
-                (-1,-1),
-                1,
-                colors.black
-            ),
+        ("ALIGN", (0,0), (-1,-1), "CENTER"),
 
+    ]))
 
-            # Expense rows
-            (
-                "BACKGROUND",
-                (0,1),
-                (-1,-2),
-                colors.beige
-            ),
-
-
-            # Total row
-            (
-                "BACKGROUND",
-                (0,-1),
-                (-1,-1),
-                colors.lightgrey
-            ),
-
-
-            (
-                "FONTNAME",
-                (0,-1),
-                (-1,-1),
-                "Helvetica-Bold"
-            ),
-
-
-            (
-                "ALIGN",
-                (0,0),
-                (-1,-1),
-                "CENTER"
-            ),
-
-        ])
-    )
-
-
-
-    # Build PDF
-    doc.build(
-        [table]
-    )
-
+    doc.build([table])
 
     return response
+@login_required(login_url="login")
 def download_earnings_pdf(request):
 
     from_date = request.GET.get("from_date")
     to_date = request.GET.get("to_date")
 
-    earnings = Earnings.objects.all().order_by("-created_at")
+    if from_date in ["", "None", None]:
+        from_date = None
+
+    if to_date in ["", "None", None]:
+        to_date = None
+
+    # Only logged-in user's earnings
+    earnings = Earnings.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
 
     if from_date:
-        earnings = earnings.filter(created_at__date__gte=from_date)
+        earnings = earnings.filter(
+            created_at__date__gte=from_date
+        )
 
     if to_date:
-        earnings = earnings.filter(created_at__date__lte=to_date)
+        earnings = earnings.filter(
+            created_at__date__lte=to_date
+        )
 
     total = earnings.aggregate(
         Sum("amount")
@@ -481,18 +400,25 @@ def download_earnings_pdf(request):
 
     doc = SimpleDocTemplate(response)
 
-    data = [["Amount", "Reason", "Date & Time"]]
+    data = [
+        ["Amount", "Reason", "Date & Time"]
+    ]
 
     for item in earnings:
+
+        indian_time = timezone.localtime(item.created_at)
 
         data.append([
             f"₹{item.amount}",
             item.reason,
-            item.created_at.strftime("%d-%m-%Y %I:%M %p")
+            indian_time.strftime("%d-%m-%Y %I:%M %p")
         ])
 
-    data.append(["", "", ""])
-    data.append(["", "Total Earnings", f"₹{total}"])
+    data.append([
+        "",
+        "Total Earnings",
+        f"₹{total}"
+    ])
 
     table = Table(data)
 
@@ -517,7 +443,6 @@ def download_earnings_pdf(request):
 
     return response
 
-
 # ==========================
 # Clear All Data
 # ==========================
@@ -530,29 +455,25 @@ def clear_all_data(request):
         user=request.user
     ).delete()
 
-
     Earnings.objects.filter(
         user=request.user
     ).delete()
-
 
     Note.objects.filter(
         user=request.user
     ).delete()
 
-
+    CalendarEvent.objects.filter(
+        user=request.user
+    ).delete()
 
     budget = Budget.objects.filter(
         user=request.user
     ).first()
 
-
     if budget:
-
         budget.fixed_amount = 0
         budget.save()
-
-
 
     return redirect("home")
 
